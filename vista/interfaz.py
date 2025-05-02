@@ -3,6 +3,9 @@ from tkinter import ttk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
 
+
+ventana_histograma_activa = None
+
 class InterfazGenerador(tk.Tk):
     def __init__(self, controlador):
         super().__init__()
@@ -88,20 +91,35 @@ class InterfazGenerador(tk.Tk):
         self.resultado_text.see(tk.END)
 
     def mostrar_histograma(self, numeros, distribucion, num_intervalos):
+        global ventana_histograma_activa
+
+        if ventana_histograma_activa:
+            ventana_histograma_activa.destroy()
+
         histograma_ventana = tk.Toplevel(self)
         histograma_ventana.title(f"Histograma ({distribucion}, {num_intervalos} intervalos)")
+        ventana_histograma_activa = histograma_ventana
 
         fig, ax = plt.subplots()
-        ax.hist(numeros, bins=num_intervalos)
-        ax.set_xlabel("Valor")
+        n, bins, patches = ax.hist(numeros, bins=num_intervalos, edgecolor='black')
+
+        # Creamos las etiquetas personalizadas
+        labels = [f'{bins[0]:.2f}'] + [f'{b:.2f}' for b in bins[1:]]
+
+        # Establecemos las ubicaciones de las etiquetas en los límites de los intervalos
+        ax.set_xticks(bins)
+        ax.set_xticklabels(labels, rotation=45, ha='right')
+
+        ax.set_xlabel("Intervalos")
         ax.set_ylabel("Frecuencia")
         ax.set_title(f"Distribución {distribucion} ({num_intervalos} intervalos)")
+        fig.tight_layout()
 
         canvas = FigureCanvasTkAgg(fig, master=histograma_ventana)
         canvas_widget = canvas.get_tk_widget()
         canvas_widget.pack(fill=tk.BOTH, expand=True)
         canvas.draw()
-
+    
     def obtener_cantidad(self):
         return self.cantidad_entry.get()
 

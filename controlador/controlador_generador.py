@@ -22,7 +22,7 @@ class ControladorGenerador:
                 return
 
             numeros_aleatorios = self.modelo.generar_aleatorios(cantidad, distribucion, parametros)
-            self.vista.mostrar_resultado(f"Números generados ({distribucion}):\n{numeros_aleatorios[:100]}...\n(Mostrando los primeros 100, total: {cantidad})")
+            self.vista.mostrar_resultado(f"Números generados ({distribucion}):\n{numeros_aleatorios[:cantidad]}")
 
             num_intervalos = self.vista.obtener_num_intervalos()
             self.vista.mostrar_histograma(numeros_aleatorios, distribucion, num_intervalos)
@@ -38,5 +38,6 @@ def main():
     vista.controlador = controlador  # Establecer el controlador
     vista.iniciar()  # Ahora sí, crear los widgets
     vista.mainloop()
+
 if __name__ == "__main__":
     main()
