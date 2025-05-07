@@ -8,10 +8,14 @@ class ControladorGenerador:
         self.vista = vista
         self.modelo = GeneradorDistribucionesModelo()
 
+
+    # Funcion para calcular el histograma, generarlo y devolverlo
     def generar_y_mostrar_histograma(self):
         try:
             cantidad_str = self.vista.obtener_cantidad()
             cantidad = int(cantidad_str)
+
+            # Numero entre 1 y 1.000.000
             if not (1 <= cantidad <= 1000000):
                 self.vista.mostrar_resultado("Por favor, ingresa una cantidad entre 1 y 1,000,000.")
                 return
@@ -38,7 +42,7 @@ class ControladorGenerador:
         except Exception as e:
             messagebox.showerror("Error", f"Ocurrió un error: {e}")
 
-    # Funcion para calcular la tabla y devolverla
+    # Funcion para calcular la tabla, generarla y devolverla
     def calcular_tabla_frecuencias(self, numeros, num_intervalos):
         conteo, limites = np.histogram(numeros, bins=num_intervalos)
         tabla = []
@@ -52,7 +56,7 @@ class ControladorGenerador:
             tabla.append((intervalo, frecuencia_absoluta, frecuencia_relativa, acumulado))
         return tabla
 
-    #funcion para mostrar la tabla de frecuencias
+    # Funcion para mostrar la tabla de frecuencias
     def mostrar_tabla_frecuencias(self, tabla):
         self.vista.crear_ventana_tabla_frecuencias(tabla)
 

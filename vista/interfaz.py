@@ -21,13 +21,13 @@ class InterfazGenerador(tk.Tk):
         self.distribucion_var = tk.StringVar(value="Uniforme")
         self.intervalos_var = tk.StringVar(value="10")
 
-
-
     def iniciar(self):
         self._crear_widgets()
         self._configurar_grid()
         self._mostrar_parametros(2)
 
+
+    # Funcion para crear los widgets(elementos) de la ventana principal
     def _crear_widgets(self):
         self.cantidad_label = tk.Label(self, text="Cantidad de números a generar:")
         self.cantidad_entry = tk.Entry(self)
@@ -89,6 +89,7 @@ class InterfazGenerador(tk.Tk):
         )
         self.scrollbar.config(command=self.resultado_text.yview)
 
+    # Funcion para configurar el grid de la ventana principal y ordenar los elementos.
     def _configurar_grid(self):
         self.cantidad_label.grid(row=0, column=0, padx=5, pady=5, sticky="w")
         self.cantidad_entry.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
@@ -125,6 +126,7 @@ class InterfazGenerador(tk.Tk):
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(5, weight=1)
 
+    # Funcion para mostrar los campos de los parametros de la distribucion seleccionada
     def _mostrar_parametros(self, num_params):
         if num_params == 1:
             self.parametro1_label.config(text="Lambda:")
@@ -139,11 +141,7 @@ class InterfazGenerador(tk.Tk):
             self.parametro2_label.grid(row=1, column=0, padx=5, pady=2, sticky="w")
             self.parametro2_entry.grid(row=1, column=1, padx=5, pady=2, sticky="ew")
 
-    def mostrar_resultado(self, texto):
-        self.resultado_text.delete(1.0, tk.END)
-        self.resultado_text.insert(tk.END, texto)
-        self.resultado_text.see(tk.END)
-
+    # Funcion para mostrar el histograma en una ventana nueva
     def mostrar_histograma(self, numeros, distribucion, num_intervalos):
         global ventana_histograma_activa
 
@@ -176,12 +174,15 @@ class InterfazGenerador(tk.Tk):
         canvas_widget.pack(fill=tk.BOTH, expand=True)
         canvas.draw()
 
+    # Funcion para obtener la cantidad de numeros a generar
     def obtener_cantidad(self):
         return self.cantidad_entry.get()
 
+    # Funcion para obtener la distribucion seleccionada
     def obtener_distribucion(self):
         return self.distribucion_var.get()
-
+    
+    # Funcion para obtener los parametros de la distribucion seleccionada, exponencial: labda, normal: mu y sigma, uniforme: a y b.
     def obtener_parametros(self):
         params = {}
         if self.distribucion_var.get() == "Exponencial":
@@ -223,14 +224,17 @@ class InterfazGenerador(tk.Tk):
                 return None, "Por favor, ingresa números válidos para a y b."
         return params, None
 
+    # Funcion para obtener el numero de intervalos seleccionados para el histograma
     def obtener_num_intervalos(self):
         return int(self.intervalos_var.get())
     
+    # Funcion para mostrar los numeros generados en el cuadro de texto
+    def mostrar_resultado(self, texto):
+        self.resultado_text.delete(1.0, tk.END)
+        self.resultado_text.insert(tk.END, texto)
+        self.resultado_text.see(tk.END)
 
-
-
-
-    # Funcion para mostrar la pagina de resultados
+    # Funcion para mostrar la pagina con todos los numeros generados llamando a la funcion mostrar_resultados
     def mostrar_pagina_resultados(self):
         if not self.numeros_generados:
             return
@@ -239,6 +243,7 @@ class InterfazGenerador(tk.Tk):
         fin = inicio + self.tamano_pagina
         pagina = self.numeros_generados[inicio:fin]
 
+        # Seteamos la cantidad de columnas
         columnas = 10
         texto = f"Números página {self.pagina_actual + 1}:\n\n"
         for i, num in enumerate(pagina):
@@ -248,16 +253,12 @@ class InterfazGenerador(tk.Tk):
 
         self.mostrar_resultado(texto)
 
-
-
     # Funcion para calcular la Anterior Pagina
     def _anterior_pagina(self):
         if self.pagina_actual > 0:
             self.pagina_actual -= 1
             self.mostrar_pagina_resultados()
 
-
-    
     # Funcion para calcular la Siguiente Pagina
     def _siguiente_pagina(self):
         total_paginas = math.ceil(len(self.numeros_generados) / self.tamano_pagina)
