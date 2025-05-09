@@ -16,6 +16,8 @@ class InterfazGenerador(tk.Tk):
 
         self.numeros_generados = []
         self.pagina_actual = 0
+
+        # Cantidad de numeros por pagina
         self.tamano_pagina = 200
 
         self.distribucion_var = tk.StringVar(value="Uniforme")
