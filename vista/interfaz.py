@@ -130,6 +130,7 @@ class InterfazGenerador(tk.Tk):
 
     # Funcion para mostrar los campos de los parametros de la distribucion seleccionada
     def _mostrar_parametros(self, num_params):
+        distribucion = self.distribucion_var.get()
         if num_params == 1:
             self.parametro1_label.config(text="Lambda:")
             self.parametro1_label.grid(row=0, column=0, padx=5, pady=2, sticky="w")
@@ -137,7 +138,16 @@ class InterfazGenerador(tk.Tk):
             self.parametro2_label.grid_forget()
             self.parametro2_entry.grid_forget()
         elif num_params == 2:
-            self.parametro1_label.config(text="Parámetro 1:")
+            if distribucion == "Normal":
+                self.parametro1_label.config(text="Mu:")
+                self.parametro2_label.config(text="Sigma:")
+            elif distribucion == "Uniforme":
+                self.parametro1_label.config(text="a:")
+                self.parametro2_label.config(text="b:")
+            else:
+                self.parametro1_label.config(text="Parámetro 1:")
+                self.parametro2_label.config(text="Parámetro 2:")
+
             self.parametro1_label.grid(row=0, column=0, padx=5, pady=2, sticky="w")
             self.parametro1_entry.grid(row=0, column=1, padx=5, pady=2, sticky="ew")
             self.parametro2_label.grid(row=1, column=0, padx=5, pady=2, sticky="w")
