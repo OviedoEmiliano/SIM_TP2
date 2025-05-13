@@ -10,7 +10,11 @@ class GeneradorDistribucionesModelo:
         if distribucion == "Exponencial":
             lambda_param = parametros.get("lambda", 1.0)
             # Generar numero y redondear a 4 decimales
-            numeros_aleatorios = [round(random.expovariate(lambda_param), 4) for _ in range(cantidad)]
+            numeros_aleatorios = []
+            for _ in range(cantidad):
+                rand = random.random()
+                X = ((-1/lambda_param) * math.log( 1- rand) )
+                numeros_aleatorios.append(round(X, 4))
 
         # PARA GENERAR NUMEROS ALEATORIOS CON DISTRIBUCION NORMAL utilizando la formula de Box-Muller
         elif distribucion == "Normal":
@@ -30,7 +34,7 @@ class GeneradorDistribucionesModelo:
                 N1 = round(mu_param + sigma_param * n1, 4);
                 N2 = round(mu_param + sigma_param * n2, 4);
 
-                numeros_aleatorios.extend([N1, N2])
+                numeros_aleatorios.extend([N1, N2]) 
 
         # PARA GENERAR NUMEROS ALEATORIOS CON DISTRIBUCION UNIFORME utilizando Random
         elif distribucion == "Uniforme":
