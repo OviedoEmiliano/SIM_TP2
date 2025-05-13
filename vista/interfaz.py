@@ -37,21 +37,21 @@ class InterfazGenerador(tk.Tk):
         self.distribucion_frame = tk.LabelFrame(self, text="Tipo de Distribución")
         self.rb_exponencial = tk.Radiobutton(
             self.distribucion_frame,
-            text="Exponencial (lambda):",
+            text="Exponencial (lambda)",
             variable=self.distribucion_var,
             value="Exponencial",
             command=lambda: self._mostrar_parametros(1),
         )
         self.rb_normal = tk.Radiobutton(
             self.distribucion_frame,
-            text="Normal (mu, sigma):",
+            text="Normal (mu, sigma)",
             variable=self.distribucion_var,
             value="Normal",
             command=lambda: self._mostrar_parametros(2),
         )
         self.rb_uniforme = tk.Radiobutton(
             self.distribucion_frame,
-            text="Uniforme (a, b):",
+            text="Uniforme (a, b)",
             variable=self.distribucion_var,
             value="Uniforme",
             command=lambda: self._mostrar_parametros(2),
@@ -62,6 +62,24 @@ class InterfazGenerador(tk.Tk):
         self.parametro1_entry = tk.Entry(self.parametros_frame)
         self.parametro2_label = tk.Label(self.parametros_frame, text="Parámetro 2:")
         self.parametro2_entry = tk.Entry(self.parametros_frame)
+
+        self.prueba_var = tk.StringVar(value="chi_cuadrado")
+        self.prueba_de_bondad = tk.LabelFrame(self, text="Prueba de Bondad")
+        self.prueba_chi_cuadrado = tk.Radiobutton(
+            self.prueba_de_bondad,
+            text="Chi Cuadrado",
+            variable=self.prueba_var,
+            value="chi_cuadrado",
+        )
+        self.prueba_ks = tk.Radiobutton(
+            self.prueba_de_bondad,
+            text="Kolmogorov-Smirnov",
+            variable=self.prueba_var,
+            value="ks",
+        )
+        self.prueba_chi_cuadrado = tk.Label(self.prueba_de_bondad, text="Chi Cuadrado")
+        
+        self.prueba_ks = tk.Label(self.prueba_de_bondad, text="Kolmogorov-Smirnov")
 
         self.intervalos_label = tk.Label(
             self, text="Número de intervalos del histograma:"
@@ -111,19 +129,32 @@ class InterfazGenerador(tk.Tk):
         self.parametro2_label.grid(row=1, column=0, padx=5, pady=2, sticky="w")
         self.parametro2_entry.grid(row=1, column=1, padx=5, pady=2, sticky="ew")
 
-        self.intervalos_label.grid(row=3, column=0, padx=5, pady=5, sticky="w")
-        self.intervalos_combo.grid(row=3, column=1, padx=5, pady=5, sticky="ew")
+
+
+        # Nota: reposicioná esta línea, que estaba antes de tiempo
+        self.prueba_de_bondad.grid(row=3, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
+
+        # Agregá los botones dentro del frame
+        self.prueba_chi_cuadrado.grid(row=0, column=0, padx=5, pady=2, sticky="w")
+        self.prueba_ks.grid(row=1, column=0, padx=5, pady=2, sticky="w")
+
+
+
+
+        self.intervalos_label.grid(row=4, column=0, padx=5, pady=5, sticky="w")
+        self.intervalos_combo.grid(row=4, column=1, padx=5, pady=5, sticky="ew")
+
 
         self.generar_histograma_boton.grid(
-            row=4, column=0, columnspan=2, padx=5, pady=10, sticky="ew"
+            row=6, column=0, columnspan=2, padx=5, pady=10, sticky="ew"
         )
 
         self.scrollbar.grid(row=5, column=2, padx=0, pady=5, sticky="ns")
         self.resultado_text.grid(
             row=5, column=0, columnspan=2, padx=5, pady=5, sticky="nsew"
         )
-        self.boton_anterior.grid(row=6, column=0, sticky="ew", padx=5, pady=5)
-        self.boton_siguiente.grid(row=6, column=1, sticky="ew", padx=5, pady=5)
+        self.boton_anterior.grid(row=7, column=0, sticky="ew", padx=5, pady=5)
+        self.boton_siguiente.grid(row=7, column=1, sticky="ew", padx=5, pady=5)
 
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(5, weight=1)
