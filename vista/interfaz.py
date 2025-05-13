@@ -77,9 +77,9 @@ class InterfazGenerador(tk.Tk):
             variable=self.prueba_var,
             value="ks",
         )
-        self.prueba_chi_cuadrado = tk.Label(self.prueba_de_bondad, text="Chi Cuadrado")
-        
-        self.prueba_ks = tk.Label(self.prueba_de_bondad, text="Kolmogorov-Smirnov")
+
+        self.alpha_label = tk.Label(self.prueba_de_bondad, text="Alfa:")
+        self.alpha_entry = tk.Entry(self.prueba_de_bondad)
 
         self.intervalos_label = tk.Label(
             self, text="Número de intervalos del histograma:"
@@ -131,14 +131,14 @@ class InterfazGenerador(tk.Tk):
 
 
 
-        # Nota: reposicioná esta línea, que estaba antes de tiempo
+
         self.prueba_de_bondad.grid(row=3, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
 
-        # Agregá los botones dentro del frame
         self.prueba_chi_cuadrado.grid(row=0, column=0, padx=5, pady=2, sticky="w")
         self.prueba_ks.grid(row=1, column=0, padx=5, pady=2, sticky="w")
 
-
+        self.alpha_label.grid(row=2, column=0, padx=5, pady=5, sticky="w")
+        self.alpha_entry.grid(row=2, column=1, padx=5, pady=5, sticky="ew")
 
 
         self.intervalos_label.grid(row=4, column=0, padx=5, pady=5, sticky="w")

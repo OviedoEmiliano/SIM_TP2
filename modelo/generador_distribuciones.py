@@ -1,53 +1,53 @@
 import random
-import numpy as np
 import math
 
 class GeneradorDistribucionesModelo:
     def generar_aleatorios(self, cantidad, distribucion, parametros):
+        """
+        Genera una lista de números aleatorios según la distribución especificada.
 
+        Args:
+            cantidad (int): Número de valores a generar.
+            distribucion (str): Tipo de distribución ("Exponencial", "Normal", "Uniforme").
+            parametros (dict): Diccionario de parámetros necesarios según la distribución.
 
-        # PARA GENERAR NUMEROS ALEATORIOS CON DISTRIBUCION EXPONENCIAL utilizando la formula con el Lambda
+        Returns:
+            list: Lista de números aleatorios generados y redondeados a 4 decimales.
+        """
+
         if distribucion == "Exponencial":
+            # Distribución Exponencial: X = -1/λ * ln(1 - U)
             lambda_param = parametros.get("lambda", 1.0)
-            # Generar numero y redondear a 4 decimales
-            numeros_aleatorios = []
-            for _ in range(cantidad):
-                rand = random.random()
-                X = ((-1/lambda_param) * math.log( 1- rand) )
-                numeros_aleatorios.append(round(X, 4))
+            return [round(-1 / lambda_param * math.log(1 - random.random()), 4) for _ in range(cantidad)]
 
-        # PARA GENERAR NUMEROS ALEATORIOS CON DISTRIBUCION NORMAL utilizando la formula de Box-Muller
         elif distribucion == "Normal":
-            mu_param = parametros.get("mu", 0.0)
-            sigma_param = parametros.get("sigma", 1.0)
-            # Generar numero y redondear a 4 decimales
+            # Distribución Normal usando el método de Box-Muller
+            mu = parametros.get("mu", 0.0)
+            sigma = parametros.get("sigma", 1.0)
 
-            # Si la cantidad es impar, se genera un numero extra, por lo contrario estariamos generando un numero menos.
+            # Si la cantidad es impar, generamos un número extra y luego recortamos
             pares = cantidad if cantidad % 2 == 0 else cantidad + 1
-            numeros_aleatorios = [];
-            for _ in range(pares//2):
-                rand1 = random.random()
-                rand2 = random.random()
-                n1 = math.sqrt(-2 * math.log(rand1)) * math.cos(2 * math.pi * rand2)
-                n2 = math.sqrt(-2 * math.log(rand1)) * math.sin(2 * math.pi * rand2)
-                
-                N1 = round(mu_param + sigma_param * n1, 4);
-                N2 = round(mu_param + sigma_param * n2, 4);
+            resultados = []
 
-                numeros_aleatorios.extend([N1, N2]) 
+            for _ in range(pares // 2):
+                u1 = random.random()
+                u2 = random.random()
+                r = math.sqrt(-2 * math.log(u1))
+                z1 = r * math.cos(2 * math.pi * u2)
+                z2 = r * math.sin(2 * math.pi * u2)
+                resultados.extend([
+                    round(mu + sigma * z1, 4),
+                    round(mu + sigma * z2, 4)
+                ])
 
-        # PARA GENERAR NUMEROS ALEATORIOS CON DISTRIBUCION UNIFORME utilizando Random
+            return resultados[:cantidad]  # Recorta si se generó uno extra
+
         elif distribucion == "Uniforme":
-            a_param = parametros.get("a", 0.0)
-            b_param = parametros.get("b", 1.0)
-            # Generar numero y redondear a 4 decimales
-            numeros_aleatorios = [round(random.uniform(a_param, b_param), 4) for _ in range(cantidad)]
+            # Distribución Uniforme en el intervalo [a, b]
+            a = parametros.get("a", 0.0)
+            b = parametros.get("b", 1.0)
+            return [round(random.uniform(a, b), 4) for _ in range(cantidad)]
 
         else:
+            # Distribución no reconocida
             return []
-
-
-
-
-        return numeros_aleatorios
-    
