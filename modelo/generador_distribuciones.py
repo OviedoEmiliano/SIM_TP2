@@ -51,3 +51,4 @@ class GeneradorDistribucionesModelo:
         else:
             # Distribución no reconocida
             return []
+        

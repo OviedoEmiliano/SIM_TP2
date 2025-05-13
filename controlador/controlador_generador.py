@@ -2,16 +2,18 @@ import numpy as np
 from modelo.generador_distribuciones import GeneradorDistribucionesModelo
 from tkinter import messagebox
 from vista.interfaz import InterfazGenerador
+from modelo.pruebas_bondad import calcular_prueba_bondad_chi2
+
 
 class ControladorGenerador:
     def __init__(self, vista):
         #Inicializa el controlador con la vista y el modelo.
         self.vista = vista
         self.modelo = GeneradorDistribucionesModelo()
+        
 
     def validar_cantidad(self, cantidad_str):
         # Valida que la cantidad ingresada sea un número entero entre 1 y 1,000,000.
-        
         try:
             cantidad = int(cantidad_str)
             if not (1 <= cantidad <= 1_000_000):
@@ -76,6 +78,20 @@ class ControladorGenerador:
     def mostrar_tabla_frecuencias(self, tabla):
         # Envía la tabla de frecuencias calculada a la vista para que la muestre en una nueva ventana.
         self.vista.crear_ventana_tabla_frecuencias(tabla)
+
+
+    def calcularPruebasBondad(self, prueba, nrosGenerados):
+        distribucion = self.vista.obtener_distribucion();
+        parametros, error_params = self.vista.obtener_parametros();
+        alpha = self.vista.obtener_alpha();
+        cantIntervalos = self.vista.obtener_num_intervalos();
+
+
+        if(prueba == 'chi2'):
+            chiStat, pValue = calcular_prueba_bondad_chi2(nrosGenerados, distribucion, parametros, alpha, cantIntervalos);
+        else:
+            pass
+
 
 
 def configurar_app():

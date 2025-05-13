@@ -12,16 +12,13 @@ class InterfazGenerador(tk.Tk):
         super().__init__()
         print(f"Controlador en InterfazGenerador.__init__: {controlador}")
         self.controlador = controlador
-        self.title("Generador de Números Aleatorios con Histograma")
-
+        self.title("Generador de Números Aleatorios")
         self.numeros_generados = []
         self.pagina_actual = 0
-
-        # Cantidad de numeros por pagina
         self.tamano_pagina = 200
-
         self.distribucion_var = tk.StringVar(value="Uniforme")
         self.intervalos_var = tk.StringVar(value="10")
+
 
     def iniciar(self):
         self._crear_widgets()
