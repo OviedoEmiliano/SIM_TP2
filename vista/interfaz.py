@@ -21,16 +21,18 @@ class InterfazGenerador(tk.Tk):
 
 
     def iniciar(self):
-        self._crear_widgets()
+        self._crear_pantalla_principal()
         self._configurar_grid()
         self._mostrar_parametros(2)
 
 
-    # Funcion para crear los widgets(elementos) de la ventana principal
-    def _crear_widgets(self):
+    # Seccion donde se carga la cantidad de numeros a generar.
+    def _seccion_cantidad_numeros(self):
         self.cantidad_label = tk.Label(self, text="Cantidad de números a generar:")
         self.cantidad_entry = tk.Entry(self)
 
+    # Seccion donde se puede seleccionar la distribucion.
+    def _seccion_seleccion_distribucion(self):
         self.distribucion_frame = tk.LabelFrame(self, text="Tipo de Distribución")
         self.rb_exponencial = tk.Radiobutton(
             self.distribucion_frame,
@@ -54,12 +56,16 @@ class InterfazGenerador(tk.Tk):
             command=lambda: self._mostrar_parametros(2),
         )
 
+    # Seccion donde se cargan los parametros de acuerdo a la distribucion.
+    def _seccion_parametros(self):
         self.parametros_frame = tk.LabelFrame(self, text="Parámetros")
         self.parametro1_label = tk.Label(self.parametros_frame, text="Parámetro 1:")
         self.parametro1_entry = tk.Entry(self.parametros_frame)
         self.parametro2_label = tk.Label(self.parametros_frame, text="Parámetro 2:")
         self.parametro2_entry = tk.Entry(self.parametros_frame)
 
+    # Seccion donde se selecciona la prueba de bondad que se ejecutara.
+    def _seccion_pruebas_bondad(self):
         self.prueba_var = tk.StringVar(value="chi_cuadrado")
         self.prueba_de_bondad = tk.LabelFrame(self, text="Prueba de Bondad")
         self.prueba_chi_cuadrado = tk.Radiobutton(
@@ -78,8 +84,10 @@ class InterfazGenerador(tk.Tk):
         self.alpha_label = tk.Label(self.prueba_de_bondad, text="Alfa:")
         self.alpha_entry = tk.Entry(self.prueba_de_bondad)
 
+    # Seccion donde se seleccionan los intervalos y generan los graficos
+    def _seccion_generar_mostrar_graficos(self):
         self.intervalos_label = tk.Label(
-            self, text="Número de intervalos del histograma:"
+            self, text="Número de intervalos:"
         )
         self.intervalos_combo = ttk.Combobox(
             self,
@@ -88,12 +96,18 @@ class InterfazGenerador(tk.Tk):
             state="readonly",
         )
 
-        self.generar_histograma_boton = tk.Button(
+        self.generar_mostrar_boton = tk.Button(
             self,
-            text="Generar y Mostrar Histograma",
+            text="Generar y Mostrar",
+            #todo: cambiar esto para que no diga histograma
+            #todo
+            #todo
+            #todo
+
             command=self.controlador.generar_y_mostrar_histograma,
         )
 
+    def _seccion_mostrar_nros_generados_paginados(self):
         self.scrollbar = tk.Scrollbar(self)
         self.resultado_text = tk.Text(
             self, height=5, width=50, yscrollcommand=self.scrollbar.set
@@ -105,6 +119,16 @@ class InterfazGenerador(tk.Tk):
             self, text="Siguiente", command=self._siguiente_pagina
         )
         self.scrollbar.config(command=self.resultado_text.yview)
+
+    # Funcion para crear las secciones de la ventana principal.
+    def _crear_pantalla_principal(self):
+        self._seccion_cantidad_numeros();
+        self._seccion_seleccion_distribucion();
+        self._seccion_parametros();
+        self._seccion_pruebas_bondad();
+        self._seccion_generar_mostrar_graficos();
+        self._seccion_mostrar_nros_generados_paginados();
+        
 
     # Funcion para configurar el grid de la ventana principal y ordenar los elementos.
     def _configurar_grid(self):
@@ -142,7 +166,7 @@ class InterfazGenerador(tk.Tk):
         self.intervalos_combo.grid(row=4, column=1, padx=5, pady=5, sticky="ew")
 
 
-        self.generar_histograma_boton.grid(
+        self.generar_mostrar_boton.grid(
             row=6, column=0, columnspan=2, padx=5, pady=10, sticky="ew"
         )
 
@@ -284,7 +308,7 @@ class InterfazGenerador(tk.Tk):
         pagina = self.numeros_generados[inicio:fin]
 
         # Seteamos la cantidad de columnas
-        columnas = 10
+        columnas = 10 
         texto = f"Números página {self.pagina_actual + 1}:\n\n"
         for i, num in enumerate(pagina):
             texto += f"{num:<10}"  # 10 caracteres de ancho, alineado a la izquierda
