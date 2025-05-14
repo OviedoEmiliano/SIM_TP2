@@ -52,7 +52,7 @@ class ControladorGenerador:
 
         # Mostrar histograma y tabla de frecuencias
         num_intervalos = self.vista.obtener_num_intervalos()
-        self.vista.mostrar_histograma(numeros_aleatorios, distribucion, num_intervalos)
+        self.vista.crear_ventana_histograma(numeros_aleatorios, distribucion, num_intervalos)
 
         tabla = self.calcular_tabla_frecuencias(numeros_aleatorios, num_intervalos)
         self.mostrar_tabla_frecuencias(tabla)
@@ -80,7 +80,7 @@ class ControladorGenerador:
         self.vista.crear_ventana_tabla_frecuencias(tabla)
 
 
-    def calcularPruebasBondad(self, prueba, nrosGenerados):
+    def calcular_pruebas_bondad(self, prueba, nrosGenerados):
         distribucion = self.vista.obtener_distribucion();
         parametros, error_params = self.vista.obtener_parametros();
         alpha = self.vista.obtener_alpha();

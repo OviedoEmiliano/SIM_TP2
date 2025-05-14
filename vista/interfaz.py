@@ -106,11 +106,8 @@ class InterfazGenerador(tk.Tk):
 
         self.generar_mostrar_boton = tk.Button(
             self,
-            text="Generar y Mostrar",
-            #todo: cambiar esto para que no diga histograma
-            #todo
-            #todo
-            #todo
+            text="Generar Números y Mostrar Graficos",
+
 
             command=self.controlador.generar_y_mostrar_graficos,
         )
@@ -354,7 +351,7 @@ class InterfazGenerador(tk.Tk):
         self.mostrar_resultado(texto)
 
     # Funcion para mostrar el histograma en una ventana nueva
-    def mostrar_histograma(self, numeros, distribucion, num_intervalos):
+    def crear_ventana_histograma(self, numeros, distribucion, num_intervalos):
         global ventana_histograma_activa
 
         if ventana_histograma_activa:
