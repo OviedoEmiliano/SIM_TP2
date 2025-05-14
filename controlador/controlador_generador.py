@@ -22,7 +22,7 @@ class ControladorGenerador:
         except ValueError:
             return None, "Por favor, ingresa un número entero válido para la cantidad."
 
-    def generar_y_mostrar_histograma(self):
+    def generar_y_mostrar_graficos(self):
         """
         Obtiene y valida entradas desde la vista, genera los números aleatorios,
         muestra resultados, histograma y tabla de frecuencias.

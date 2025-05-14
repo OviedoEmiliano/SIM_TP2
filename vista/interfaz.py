@@ -112,7 +112,7 @@ class InterfazGenerador(tk.Tk):
             #todo
             #todo
 
-            command=self.controlador.generar_y_mostrar_histograma,
+            command=self.controlador.generar_y_mostrar_graficos,
         )
 
     # Seccion donde se muestran los nros generados y paginados.
@@ -146,7 +146,7 @@ class InterfazGenerador(tk.Tk):
 
         FUNCIONES PARA ORGANIZAR LA VENTANA PRINCIPAL (GRID)
 
-        
+
 
     """
 
@@ -325,7 +325,7 @@ class InterfazGenerador(tk.Tk):
     FUNCIONES USADAS EN EL CONTROLADOR
 
     
-    
+
     """
 
     # Funcion para mostrar los numeros generados en el cuadro de texto
