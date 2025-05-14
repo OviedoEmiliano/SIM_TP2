@@ -426,9 +426,10 @@ class InterfazGenerador(tk.Tk):
 
         # Deshabilitar la edición del Text widget
         resultado_text.config(state=tk.DISABLED)
+        ventana_tabla_frecuencias_activa = nueva_ventana
 
-    # Funcion para mostrar el resultado de la prueba de bondad.
-    def crear_ventana_prueba_bondad(self, resultado_prueba):
+    # Funcion para mostrar el resultado de la prueba de bondad de CHI CUADRADO.
+    def crear_ventana_prueba_bondad_chi2(self, resultado_prueba):
         global ventana_prueba_bondad_activa
 
         if ventana_prueba_bondad_activa:
@@ -467,13 +468,13 @@ class InterfazGenerador(tk.Tk):
 
         resultado += "Resultado de la Prueba:\n"
         if pValue > alpha:
-            resultado += f"✅ No se rechaza H₀ (los datos siguen una {distribucion})\n\n"
+            resultado += f"✅ No hay suficiente evidencia para rechazar H₀ (los datos siguen una {distribucion})\n\n"
         else:
             resultado += f"❌ Se rechaza H₀ (los datos NO siguen una {distribucion})\n\n"
 
         if chiTabla is not None:
             if chiStat <= chiTabla:
-                resultado += f"📊 Como {chiStat:.4f} <= {chiTabla:.4f}, NO se rechaza H₀ según el valor crítico.\n\n"
+                resultado += f"📊 Como {chiStat:.4f} <= {chiTabla:.4f}, No hay suficiente evidencia para rechazar H₀ según el valor crítico.\n\n"
             else:
                 resultado += f"📊 Como {chiStat:.4f} > {chiTabla:.4f}, se rechaza H₀ según el valor crítico.\n\n"
 
@@ -481,6 +482,62 @@ class InterfazGenerador(tk.Tk):
         resultado += "-" * 55 + "\n"
         for i in range(len(frec_obs)):
             resultado += f"{i+1:9} | {frec_obs[i]:21} | {frec_esp[i]:20.2f}\n"
+
+        # Insertar texto y habilitar scroll
+        resultado_text.config(state=tk.NORMAL)
+        resultado_text.insert(tk.END, resultado)
+        resultado_text.config(state=tk.DISABLED)
+
+        # Guardar la ventana para poder cerrarla después
+        ventana_prueba_bondad_activa = nueva_ventana
+
+    # Funcion para mostrar el resultado de la prueba de bondad de Kolmogorov-Smirnov
+    def crear_ventana_prueba_bondad_ks(self, resultado_prueba):
+        global ventana_prueba_bondad_activa
+
+        if ventana_prueba_bondad_activa:
+            ventana_prueba_bondad_activa.destroy()
+
+        nueva_ventana = tk.Toplevel(self)
+        nueva_ventana.title("Prueba de Bondad Kolmogorov-Smirnov")
+
+        resultado_text = tk.Text(nueva_ventana, wrap=tk.WORD)
+        resultado_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        scrollbar = tk.Scrollbar(nueva_ventana, command=resultado_text.yview)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        resultado_text.config(yscrollcommand=scrollbar.set)
+
+        # Deshabilitar la edición del Text widget
+        resultado_text.config(state=tk.DISABLED)
+
+        # Extraer datos del diccionario
+        ksStat = resultado_prueba.get("ksStat", 0)
+        ksTabla = resultado_prueba.get("ksTabla", 0)
+        pValue = resultado_prueba.get("pValue", 0)
+        alpha = resultado_prueba.get("alpha", 0.05)
+        distribucion = resultado_prueba.get("distribucion", "desconocida")
+
+        # Crear el texto de la tabla
+        resultado = "=== Prueba de Bondad Kolmogorov-Smirnov ===\n\n"
+        resultado += f"Distribución hipotética: {distribucion}\n"
+        resultado += f"Estadístico KS Calculado: {ksStat:.4f}\n"
+        if ksTabla is not None:
+            resultado += f"Estadistico KS de Tabla: {ksTabla:.4f}\n"
+        resultado += f"Valor p (p-value): {pValue:.4f}\n"
+        resultado += f"Nivel de significancia (α): {alpha:.4f}\n\n"
+
+        resultado += "Resultado de la Prueba:\n"
+        if pValue > alpha:
+            resultado += f"✅ No hay suficiente evidencia para rechazar H₀ (los datos siguen una {distribucion})\n\n"
+        else:
+            resultado += f"❌ Se rechaza H₀ (los datos NO siguen una {distribucion})\n\n"
+
+        if ksTabla is not None:
+            if ksStat <= ksTabla:
+                resultado += f"📊 Como {ksStat:.4f} <= {ksTabla:.4f}, No hay suficiente evidencia para rechazar H₀ según el valor crítico.\n\n"
+            else:
+                resultado += f"📊 Como {ksStat:.4f} > {ksTabla:.4f}, se rechaza H₀ según el valor crítico.\n\n"
 
         # Insertar texto y habilitar scroll
         resultado_text.config(state=tk.NORMAL)

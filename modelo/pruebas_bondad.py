@@ -1,6 +1,7 @@
 from scipy.stats import chisquare
 from scipy.stats import chi2
 from scipy.stats import kstest
+from scipy.stats import ksone
 from scipy.stats import norm
 from scipy.stats import expon
 import numpy as np
@@ -59,17 +60,27 @@ def calcular_prueba_bondad_chi2(
 
 # Calcular la prueba de bondad
 def calcular_prueba_bondad_ks(
-    arrayNrosGenerados,
+    array_nros_generados,
     distribucion,
-    parametrosDistribucion,
+    parametros_distribucion,
+    alpha
 ):
 
+    n = len(array_nros_generados)
+
     if distribucion == "Uniforme":
-        pass
+        a = parametros_distribucion.get("a", 0.0)
+        b = parametros_distribucion.get("b",1.0)
+        ks_stat, p_value = kstest(array_nros_generados,"uniform", args=(a,b-a))
     elif distribucion == "Normal":
-        pass
+        mu = parametros_distribucion.get("mu", 0.0)
+        sigma = parametros_distribucion.get("sigma",1.0)
+        ks_stat, p_value = kstest(array_nros_generados,"norm", args=(mu,sigma))
     elif distribucion == "Exponencial":
-        pass
+        lambda_p = parametros_distribucion.get("lambda", 0.0)
+        ks_stat, p_value = kstest(array_nros_generados,"expon", args=(0,(1/lambda_p)))
     else:
         print("Error: no se ha especificado la distribución")
 
+    ks_tabla = ksone.ppf(1 - alpha/2, n)
+    return ks_stat, p_value, ks_tabla

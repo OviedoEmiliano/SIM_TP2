@@ -3,6 +3,7 @@ from modelo.generador_distribuciones import GeneradorDistribucionesModelo
 from tkinter import messagebox
 from vista.interfaz import InterfazGenerador
 from modelo.pruebas_bondad import calcular_prueba_bondad_chi2
+from modelo.pruebas_bondad import calcular_prueba_bondad_ks
 
 
 class ControladorGenerador:
@@ -62,15 +63,24 @@ class ControladorGenerador:
 
         prueba_bondad_seleccionada = self.vista.obtener_prueba_bondad_seleccionada()
         alpha = self.vista.obtener_alpha()
-        prueba_bondad = self.calcular_pruebas_bondad(
-            prueba_bondad_seleccionada,
-            numeros_aleatorios,
-            distribucion,
-            parametros,
-            alpha,
-            num_intervalos,
-        )
-        self.vista.crear_ventana_prueba_bondad(prueba_bondad)
+
+        if(prueba_bondad_seleccionada == "chi2"):
+            prueba_bondad = self.calcular_prueba_bondad_chi2(
+                numeros_aleatorios,
+                distribucion,
+                parametros,
+                alpha,
+                num_intervalos,
+            )
+            self.vista.crear_ventana_prueba_bondad_chi2(prueba_bondad)
+        elif(prueba_bondad_seleccionada == "ks"):
+            prueba_bondad = self.calcular_prueba_bondad_ks(
+                numeros_aleatorios,
+                distribucion,
+                parametros,
+                alpha,
+            )
+            self.vista.crear_ventana_prueba_bondad_ks(prueba_bondad)
 
     def calcular_tabla_frecuencias(self, numeros, num_intervalos):
         """
@@ -92,18 +102,12 @@ class ControladorGenerador:
             )
         return tabla
 
-    def calcular_pruebas_bondad(
-        self, prueba, nros_generados, distribucion, parametros, alpha, cant_intervalos
+    def calcular_prueba_bondad_chi2(
+        self, nros_generados, distribucion, parametros, alpha, cant_intervalos
     ):
-        # todo realizar esto y ver como devolver los datosque poner en la vista 
-        if prueba == "chi2":
-            frec_observadas, frec_esperadas, chiStat, chiTabla, pValue = calcular_prueba_bondad_chi2(
-                nros_generados, distribucion, parametros, alpha, cant_intervalos
-            )
-
-        elif prueba == "ks":
-            pass
-        
+        frec_observadas, frec_esperadas, chiStat, chiTabla, pValue = calcular_prueba_bondad_chi2(
+            nros_generados, distribucion, parametros, alpha, cant_intervalos
+        )
         resultado_prueba = {
             "frec_observadas": frec_observadas,
             "frec_esperadas": frec_esperadas,
@@ -115,6 +119,16 @@ class ControladorGenerador:
         }
         return resultado_prueba
 
+    def calcular_prueba_bondad_ks(self,nros_generados, distribucion, parametros, alpha  ):
+        ks_stat, p_value, ks_tabla = calcular_prueba_bondad_ks(nros_generados, distribucion, parametros, alpha)
+        resultado_prueba = {
+            "ksStat": ks_stat,
+            "ksTabla": ks_tabla,
+            "pValue": p_value,
+            "distribucion": distribucion,
+            "alpha": alpha
+        }
+        return resultado_prueba;
 
 def configurar_app():
     # Configura la aplicación creando la vista y el controlador, y vinculándolos entre sí.
