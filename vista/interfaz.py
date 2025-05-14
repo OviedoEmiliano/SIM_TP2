@@ -427,23 +427,19 @@ class InterfazGenerador(tk.Tk):
         # Deshabilitar la edición del Text widget
         resultado_text.config(state=tk.DISABLED)
 
-    # Funcion para mostrar la Tabla de frecuencias en el cuadro de texto
-    def crear_ventana_prueba_bondad(self, CAMBIARESTO):
-        global ventana_prueba_bondad_activa  # Usa la variable global
+    # Funcion para mostrar el resultado de la prueba de bondad.
+    def crear_ventana_prueba_bondad(self, resultado_prueba):
+        global ventana_prueba_bondad_activa
 
         if ventana_prueba_bondad_activa:
-            ventana_prueba_bondad_activa.destroy()  # Cierra la ventana anterior
+            ventana_prueba_bondad_activa.destroy()
 
         nueva_ventana = tk.Toplevel(self)
         nueva_ventana.title("Prueba de Bondad")
 
-        # BORRAR DEBAJO
-
-        # Crear un widget Text para mostrar la tabla
         resultado_text = tk.Text(nueva_ventana, wrap=tk.WORD)
         resultado_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-        # Añadir una barra de desplazamiento vertical si es necesario
         scrollbar = tk.Scrollbar(nueva_ventana, command=resultado_text.yview)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         resultado_text.config(yscrollcommand=scrollbar.set)
@@ -451,4 +447,45 @@ class InterfazGenerador(tk.Tk):
         # Deshabilitar la edición del Text widget
         resultado_text.config(state=tk.DISABLED)
 
-        # BORRAR ARRIBA
+        # Extraer datos del diccionario
+        frec_obs = resultado_prueba.get("frec_observadas", [])
+        frec_esp = resultado_prueba.get("frec_esperadas", [])
+        chiStat = resultado_prueba.get("chiStat", 0)
+        chiTabla = resultado_prueba.get("chiTabla", 0)
+        pValue = resultado_prueba.get("pValue", 0)
+        alpha = resultado_prueba.get("alpha", 0.05)
+        distribucion = resultado_prueba.get("distribucion", "desconocida")
+
+        # Crear el texto de la tabla
+        resultado = "=== Prueba de Bondad Chi² ===\n\n"
+        resultado += f"Distribución hipotética: {distribucion}\n"
+        resultado += f"Estadístico Chi² Calculado: {chiStat:.4f}\n"
+        if chiTabla is not None:
+            resultado += f"Estadistico Chi² de Tabla: {chiTabla:.4f}\n"
+        resultado += f"Valor p (p-value): {pValue:.4f}\n"
+        resultado += f"Nivel de significancia (α): {alpha:.4f}\n\n"
+
+        resultado += "Resultado de la Prueba:\n"
+        if pValue > alpha:
+            resultado += f"✅ No se rechaza H₀ (los datos siguen una {distribucion})\n\n"
+        else:
+            resultado += f"❌ Se rechaza H₀ (los datos NO siguen una {distribucion})\n\n"
+
+        if chiTabla is not None:
+            if chiStat <= chiTabla:
+                resultado += f"📊 Como {chiStat:.4f} <= {chiTabla:.4f}, NO se rechaza H₀ según el valor crítico.\n\n"
+            else:
+                resultado += f"📊 Como {chiStat:.4f} > {chiTabla:.4f}, se rechaza H₀ según el valor crítico.\n\n"
+
+        resultado += "Intervalo | Frecuencia Observada | Frecuencia Esperada\n"
+        resultado += "-" * 55 + "\n"
+        for i in range(len(frec_obs)):
+            resultado += f"{i+1:9} | {frec_obs[i]:21} | {frec_esp[i]:20.2f}\n"
+
+        # Insertar texto y habilitar scroll
+        resultado_text.config(state=tk.NORMAL)
+        resultado_text.insert(tk.END, resultado)
+        resultado_text.config(state=tk.DISABLED)
+
+        # Guardar la ventana para poder cerrarla después
+        ventana_prueba_bondad_activa = nueva_ventana

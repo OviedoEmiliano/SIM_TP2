@@ -97,13 +97,23 @@ class ControladorGenerador:
     ):
         # todo realizar esto y ver como devolver los datosque poner en la vista 
         if prueba == "chi2":
-            chiStat, pValue = calcular_prueba_bondad_chi2(
+            frec_observadas, frec_esperadas, chiStat, chiTabla, pValue = calcular_prueba_bondad_chi2(
                 nros_generados, distribucion, parametros, alpha, cant_intervalos
             )
+
         elif prueba == "ks":
             pass
-
-        print("El chi cuadrado es: ", chiStat,"y el pvalue es: ",pValue)
+        
+        resultado_prueba = {
+            "frec_observadas": frec_observadas,
+            "frec_esperadas": frec_esperadas,
+            "chiStat": chiStat,
+            "chiTabla": chiTabla,
+            "pValue": pValue,
+            "distribucion": distribucion,
+            "alpha": alpha
+        }
+        return resultado_prueba
 
 
 def configurar_app():
