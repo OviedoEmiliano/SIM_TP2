@@ -17,21 +17,24 @@ def calcular_prueba_bondad_chi2(
     frecEsperadas = []
 
     if distribucion == "Uniforme":
-        a, b = parametrosDistribucion
-
+        a = parametrosDistribucion.get("a", 0.0)
+        b = parametrosDistribucion.get("b",1.0)
+        
+        
         frecEsperadas = [
             ((limitesIntervalos[i + 1] - limitesIntervalos[i]) / (b - a))
             for i in range(len(limitesIntervalos) - 1)
         ]
 
     elif distribucion == "Normal":
-        mu, sigma = parametrosDistribucion;
+        mu = parametrosDistribucion.get("mu",0.0)
+        sigma = parametrosDistribucion.get("sigma",1.0);
         frecEsperadas = [
             norm.cdf(limitesIntervalos[i+1], mu, sigma) - norm.cdf(limitesIntervalos[i], mu, sigma)
             for i in range(len(limitesIntervalos) - 1)
         ]
     elif distribucion == "Exponencial":
-        lambda_p = parametrosDistribucion[0];
+        lambda_p = parametrosDistribucion.get("lambda", 1.0)
         
         frecEsperadas = [
             expon.cdf(limitesIntervalos[i+1], scale=1/lambda_p) - expon.cdf(limitesIntervalos[i], scale=1/lambda_p)
@@ -40,10 +43,18 @@ def calcular_prueba_bondad_chi2(
     else:
         print("Error: no se ha especificado la distribución")
 
-    frecEsperadas = np.array(frecEsperadas)*cantNrosGenerados
 
+
+
+    print("\n\n Frecuecnias esperadas: ",frecEsperadas,"\n\n Frecuecnias observadas: ", frecObservadas)
+    frecEsperadas = np.array(frecEsperadas)*cantNrosGenerados
+    frecEsperadas *= (sum(frecObservadas) / sum(frecEsperadas))
+
+
+    print("\n\n ACA HICIMOS LOS CALCULOS DE LA FREC ESP\n\n")
+    print("\n\n Frecuecnias esperadas: ",frecEsperadas,"\n\n Frecuecnias observadas: ", frecObservadas)
     chi2stat, p_value = chisquare(frecObservadas,frecEsperadas)
-    return chi2stat,p_value
+    return frecObservadas, frecEsperadas, chi2stat, p_value
 
 # Calcular la prueba de bondad
 def calcular_prueba_bondad_ks(

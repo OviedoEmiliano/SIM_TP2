@@ -6,6 +6,8 @@ import math
 
 ventana_histograma_activa = None
 ventana_tabla_frecuencias_activa = None
+ventana_prueba_bondad_activa = None
+
 
 class InterfazGenerador(tk.Tk):
     def __init__(self, controlador):
@@ -18,7 +20,6 @@ class InterfazGenerador(tk.Tk):
         self.tamano_pagina = 200
         self.distribucion_var = tk.StringVar(value="Uniforme")
         self.intervalos_var = tk.StringVar(value="10")
-
 
     def iniciar(self):
         self._crear_pantalla_principal()
@@ -34,6 +35,7 @@ class InterfazGenerador(tk.Tk):
     
         
     """
+
     # Seccion donde se carga la cantidad de numeros a generar.
     def _seccion_cantidad_numeros(self):
         self.cantidad_label = tk.Label(self, text="Cantidad de números a generar:")
@@ -74,13 +76,13 @@ class InterfazGenerador(tk.Tk):
 
     # Seccion donde se selecciona la prueba de bondad que se ejecutara.
     def _seccion_pruebas_bondad(self):
-        self.prueba_var = tk.StringVar(value="chi_cuadrado")
+        self.prueba_var = tk.StringVar(value="chi2")
         self.prueba_de_bondad = tk.LabelFrame(self, text="Prueba de Bondad")
         self.prueba_chi_cuadrado = tk.Radiobutton(
             self.prueba_de_bondad,
             text="Chi Cuadrado",
             variable=self.prueba_var,
-            value="chi_cuadrado",
+            value="chi2",
         )
         self.prueba_ks = tk.Radiobutton(
             self.prueba_de_bondad,
@@ -94,9 +96,7 @@ class InterfazGenerador(tk.Tk):
 
     # Seccion donde se seleccionan los intervalos y generan los graficos.
     def _seccion_generar_mostrar_graficos(self):
-        self.intervalos_label = tk.Label(
-            self, text="Número de intervalos:"
-        )
+        self.intervalos_label = tk.Label(self, text="Número de intervalos:")
         self.intervalos_combo = ttk.Combobox(
             self,
             textvariable=self.intervalos_var,
@@ -107,8 +107,6 @@ class InterfazGenerador(tk.Tk):
         self.generar_mostrar_boton = tk.Button(
             self,
             text="Generar Números y Mostrar Graficos",
-
-
             command=self.controlador.generar_y_mostrar_graficos,
         )
 
@@ -128,14 +126,12 @@ class InterfazGenerador(tk.Tk):
 
     # Funcion para crear las secciones de la ventana principal.
     def _crear_pantalla_principal(self):
-        self._seccion_cantidad_numeros();
-        self._seccion_seleccion_distribucion();
-        self._seccion_parametros();
-        self._seccion_pruebas_bondad();
-        self._seccion_generar_mostrar_graficos();
-        self._seccion_mostrar_nros_generados_paginados();
-        
-
+        self._seccion_cantidad_numeros()
+        self._seccion_seleccion_distribucion()
+        self._seccion_parametros()
+        self._seccion_pruebas_bondad()
+        self._seccion_generar_mostrar_graficos()
+        self._seccion_mostrar_nros_generados_paginados()
 
     """
     
@@ -150,6 +146,7 @@ class InterfazGenerador(tk.Tk):
     def _grid_cantidad_numeros(self):
         self.cantidad_label.grid(row=0, column=0, padx=5, pady=5, sticky="w")
         self.cantidad_entry.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
+
     def _grid_seleccion_distribucion(self):
         self.distribucion_frame.grid(
             row=1, column=0, columnspan=2, padx=5, pady=5, sticky="ew"
@@ -157,6 +154,7 @@ class InterfazGenerador(tk.Tk):
         self.rb_exponencial.grid(row=0, column=0, padx=5, pady=2, sticky="w")
         self.rb_normal.grid(row=1, column=0, padx=5, pady=2, sticky="w")
         self.rb_uniforme.grid(row=2, column=0, padx=5, pady=2, sticky="w")
+
     def _grid_parametros(self):
         self.parametros_frame.grid(
             row=2, column=0, columnspan=2, padx=5, pady=5, sticky="ew"
@@ -165,20 +163,25 @@ class InterfazGenerador(tk.Tk):
         self.parametro1_entry.grid(row=0, column=1, padx=5, pady=2, sticky="ew")
         self.parametro2_label.grid(row=1, column=0, padx=5, pady=2, sticky="w")
         self.parametro2_entry.grid(row=1, column=1, padx=5, pady=2, sticky="ew")
+
     def _grid_pruebas_bondad(self):
-        self.prueba_de_bondad.grid(row=3, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
+        self.prueba_de_bondad.grid(
+            row=3, column=0, columnspan=2, padx=5, pady=5, sticky="ew"
+        )
 
         self.prueba_chi_cuadrado.grid(row=0, column=0, padx=5, pady=2, sticky="w")
         self.prueba_ks.grid(row=1, column=0, padx=5, pady=2, sticky="w")
 
         self.alpha_label.grid(row=2, column=0, padx=(0, 2), pady=5, sticky="e")
         self.alpha_entry.grid(row=2, column=1, padx=(2, 0), pady=5, sticky="w")
+
     def _grid_generar_mostrar_graficos(self):
         self.intervalos_label.grid(row=4, column=0, padx=5, pady=5, sticky="w")
         self.intervalos_combo.grid(row=4, column=1, padx=5, pady=5, sticky="ew")
         self.generar_mostrar_boton.grid(
             row=7, column=0, columnspan=2, padx=5, pady=10, sticky="ew"
         )
+
     def _grid_mostrar_nros_generados_paginados(self):
         self.scrollbar.grid(row=5, column=2, padx=0, pady=5, sticky="ns")
         self.resultado_text.grid(
@@ -186,18 +189,18 @@ class InterfazGenerador(tk.Tk):
         )
         self.boton_anterior.grid(row=6, column=0, sticky="ew", padx=5, pady=5)
         self.boton_siguiente.grid(row=6, column=1, sticky="ew", padx=5, pady=5)
+
     # Funcion para configurar el grid de la ventana principal y ordenar los elementos.
     def _configurar_grid(self):
-        self._grid_cantidad_numeros();
-        self._grid_seleccion_distribucion();
-        self._grid_parametros();
-        self._grid_pruebas_bondad();
+        self._grid_cantidad_numeros()
+        self._grid_seleccion_distribucion()
+        self._grid_parametros()
+        self._grid_pruebas_bondad()
         self._grid_generar_mostrar_graficos()
-        self._grid_mostrar_nros_generados_paginados();
+        self._grid_mostrar_nros_generados_paginados()
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(5, weight=1)
-
 
     """
 
@@ -235,7 +238,7 @@ class InterfazGenerador(tk.Tk):
             self.parametro2_entry.grid(row=1, column=1, padx=5, pady=2, sticky="ew")
 
         # Funcion para calcular la Anterior Pagina
-    
+
     # Funcion para calcular la Pagina Anterior
     def _anterior_pagina(self):
         if self.pagina_actual > 0:
@@ -248,7 +251,6 @@ class InterfazGenerador(tk.Tk):
         if self.pagina_actual < total_paginas - 1:
             self.pagina_actual += 1
             self.mostrar_pagina_resultados()
-
 
     """
     
@@ -267,7 +269,7 @@ class InterfazGenerador(tk.Tk):
     # Funcion para obtener la distribucion seleccionada
     def obtener_distribucion(self):
         return self.distribucion_var.get()
-    
+
     # Funcion para obtener los parametros de la distribucion seleccionada, exponencial: labda, normal: mu y sigma, uniforme: a y b.
     def obtener_parametros(self):
         params = {}
@@ -313,7 +315,14 @@ class InterfazGenerador(tk.Tk):
     # Funcion para obtener el numero de intervalos seleccionados para el histograma
     def obtener_num_intervalos(self):
         return int(self.intervalos_var.get())
-    
+
+    # Funcion para obtener el alpha ingresado
+    def obtener_alpha(self):
+        return float(self.alpha_entry.get()) if self.alpha_entry.get() else 0.05
+
+    # Funcion para obtener la prueba de bondad seleccionada
+    def obtener_prueba_bondad_seleccionada(self):
+        return self.prueba_var.get()
 
     """
     
@@ -341,7 +350,7 @@ class InterfazGenerador(tk.Tk):
         pagina = self.numeros_generados[inicio:fin]
 
         # Seteamos la cantidad de columnas
-        columnas = 10 
+        columnas = 10
         texto = f"Números página {self.pagina_actual + 1}:\n\n"
         for i, num in enumerate(pagina):
             texto += f"{num:<10}"  # 10 caracteres de ancho, alineado a la izquierda
@@ -390,7 +399,6 @@ class InterfazGenerador(tk.Tk):
         if ventana_tabla_frecuencias_activa:
             ventana_tabla_frecuencias_activa.destroy()  # Cierra la ventana anterior
 
-
         nueva_ventana = tk.Toplevel(self)
         nueva_ventana.title("Tabla de Frecuencias")
 
@@ -405,10 +413,42 @@ class InterfazGenerador(tk.Tk):
 
         # Insertar la tabla de frecuencias en el Text widget
         resultado_text.insert(tk.END, "\nTabla de Frecuencias:\n")
-        resultado_text.insert(tk.END, f"{'Intervalo':<25} {'Frec. Abs.':<10} {'Frec. Rel.':<10} {'Frec. Acum.':<10}\n")
+        resultado_text.insert(
+            tk.END,
+            f"{'Intervalo':<25} {'Frec. Abs.':<10} {'Frec. Rel.':<10} {'Frec. Acum.':<10}\n",
+        )
         resultado_text.insert(tk.END, "-" * 65 + "\n")  # Ajusta el ancho de la línea
         for intervalo, frecuencia_absoluta, frecuencia_relativa, acumulado in tabla:
-            resultado_text.insert(tk.END, f"{intervalo:<25} {frecuencia_absoluta:<10} {frecuencia_relativa:<10.4f} {acumulado:<10}\n")  # Formatea la frecuencia relativa
+            resultado_text.insert(
+                tk.END,
+                f"{intervalo:<25} {frecuencia_absoluta:<10} {frecuencia_relativa:<10.4f} {acumulado:<10}\n",
+            )  # Formatea la frecuencia relativa
 
         # Deshabilitar la edición del Text widget
         resultado_text.config(state=tk.DISABLED)
+
+    # Funcion para mostrar la Tabla de frecuencias en el cuadro de texto
+    def crear_ventana_prueba_bondad(self, CAMBIARESTO):
+        global ventana_prueba_bondad_activa  # Usa la variable global
+
+        if ventana_prueba_bondad_activa:
+            ventana_prueba_bondad_activa.destroy()  # Cierra la ventana anterior
+
+        nueva_ventana = tk.Toplevel(self)
+        nueva_ventana.title("Prueba de Bondad")
+
+        # BORRAR DEBAJO
+
+        # Crear un widget Text para mostrar la tabla
+        resultado_text = tk.Text(nueva_ventana, wrap=tk.WORD)
+        resultado_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        # Añadir una barra de desplazamiento vertical si es necesario
+        scrollbar = tk.Scrollbar(nueva_ventana, command=resultado_text.yview)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        resultado_text.config(yscrollcommand=scrollbar.set)
+
+        # Deshabilitar la edición del Text widget
+        resultado_text.config(state=tk.DISABLED)
+
+        # BORRAR ARRIBA

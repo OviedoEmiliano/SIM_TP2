@@ -7,10 +7,9 @@ from modelo.pruebas_bondad import calcular_prueba_bondad_chi2
 
 class ControladorGenerador:
     def __init__(self, vista):
-        #Inicializa el controlador con la vista y el modelo.
+        # Inicializa el controlador con la vista y el modelo.
         self.vista = vista
         self.modelo = GeneradorDistribucionesModelo()
-        
 
     def validar_cantidad(self, cantidad_str):
         # Valida que la cantidad ingresada sea un número entero entre 1 y 1,000,000.
@@ -40,7 +39,9 @@ class ControladorGenerador:
             return
 
         try:
-            numeros_aleatorios = self.modelo.generar_aleatorios(cantidad, distribucion, parametros)
+            numeros_aleatorios = self.modelo.generar_aleatorios(
+                cantidad, distribucion, parametros
+            )
         except Exception as e:
             messagebox.showerror("Error al generar números", str(e))
             return
@@ -52,10 +53,24 @@ class ControladorGenerador:
 
         # Mostrar histograma y tabla de frecuencias
         num_intervalos = self.vista.obtener_num_intervalos()
-        self.vista.crear_ventana_histograma(numeros_aleatorios, distribucion, num_intervalos)
+        self.vista.crear_ventana_histograma(
+            numeros_aleatorios, distribucion, num_intervalos
+        )
 
         tabla = self.calcular_tabla_frecuencias(numeros_aleatorios, num_intervalos)
-        self.mostrar_tabla_frecuencias(tabla)
+        self.vista.crear_ventana_tabla_frecuencias(tabla)
+
+        prueba_bondad_seleccionada = self.vista.obtener_prueba_bondad_seleccionada()
+        alpha = self.vista.obtener_alpha()
+        prueba_bondad = self.calcular_pruebas_bondad(
+            prueba_bondad_seleccionada,
+            numeros_aleatorios,
+            distribucion,
+            parametros,
+            alpha,
+            num_intervalos,
+        )
+        self.vista.crear_ventana_prueba_bondad(prueba_bondad)
 
     def calcular_tabla_frecuencias(self, numeros, num_intervalos):
         """
@@ -72,26 +87,23 @@ class ControladorGenerador:
             frecuencia_absoluta = conteo[i]
             frecuencia_relativa = conteo[i] / total_datos if total_datos > 0 else 0
             acumulado += frecuencia_absoluta
-            tabla.append((intervalo, frecuencia_absoluta, frecuencia_relativa, acumulado))
+            tabla.append(
+                (intervalo, frecuencia_absoluta, frecuencia_relativa, acumulado)
+            )
         return tabla
 
-    def mostrar_tabla_frecuencias(self, tabla):
-        # Envía la tabla de frecuencias calculada a la vista para que la muestre en una nueva ventana.
-        self.vista.crear_ventana_tabla_frecuencias(tabla)
-
-
-    def calcular_pruebas_bondad(self, prueba, nrosGenerados):
-        distribucion = self.vista.obtener_distribucion();
-        parametros, error_params = self.vista.obtener_parametros();
-        alpha = self.vista.obtener_alpha();
-        cantIntervalos = self.vista.obtener_num_intervalos();
-
-
-        if(prueba == 'chi2'):
-            chiStat, pValue = calcular_prueba_bondad_chi2(nrosGenerados, distribucion, parametros, alpha, cantIntervalos);
-        else:
+    def calcular_pruebas_bondad(
+        self, prueba, nros_generados, distribucion, parametros, alpha, cant_intervalos
+    ):
+        # todo realizar esto y ver como devolver los datosque poner en la vista 
+        if prueba == "chi2":
+            chiStat, pValue = calcular_prueba_bondad_chi2(
+                nros_generados, distribucion, parametros, alpha, cant_intervalos
+            )
+        elif prueba == "ks":
             pass
 
+        print("El chi cuadrado es: ", chiStat,"y el pvalue es: ",pValue)
 
 
 def configurar_app():
@@ -101,11 +113,13 @@ def configurar_app():
     vista.controlador = controlador
     return vista
 
+
 def main():
     # Punto de entrada de la aplicación: inicia la interfaz gráfica.
     vista = configurar_app()
     vista.iniciar()
     vista.mainloop()
+
 
 if __name__ == "__main__":
     main()
