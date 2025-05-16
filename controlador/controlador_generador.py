@@ -105,15 +105,17 @@ class ControladorGenerador:
     def calcular_prueba_bondad_chi2(
         self, nros_generados, distribucion, parametros, alpha, cant_intervalos
     ):
-        frec_observadas, frec_esperadas, chiStat, chiTabla, pValue = calcular_prueba_bondad_chi2(
+        frec_observadas, frec_esperadas, frec_observadas_acumuladas, frec_esperadas_acumuladas, valores_chi_individuales, chi_calculado, chi2_tabla = calcular_prueba_bondad_chi2(
             nros_generados, distribucion, parametros, alpha, cant_intervalos
         )
         resultado_prueba = {
             "frec_observadas": frec_observadas,
             "frec_esperadas": frec_esperadas,
-            "chiStat": chiStat,
-            "chiTabla": chiTabla,
-            "pValue": pValue,
+            "chi_calculado": chi_calculado,
+            "frec_observadas_acumuladas": frec_observadas_acumuladas,
+            "frec_esperadas_acumuladas":frec_esperadas_acumuladas,
+            "valores_chi_individuales": valores_chi_individuales,
+            "chi_tabla": chi2_tabla,
             "distribucion": distribucion,
             "alpha": alpha
         }

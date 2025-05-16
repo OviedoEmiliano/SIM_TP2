@@ -451,37 +451,56 @@ class InterfazGenerador(tk.Tk):
         # Extraer datos del diccionario
         frec_obs = resultado_prueba.get("frec_observadas", [])
         frec_esp = resultado_prueba.get("frec_esperadas", [])
-        chiStat = resultado_prueba.get("chiStat", 0)
-        chiTabla = resultado_prueba.get("chiTabla", 0)
-        pValue = resultado_prueba.get("pValue", 0)
-        alpha = resultado_prueba.get("alpha", 0.05)
+        frec_obs_acum = resultado_prueba.get("frec_observadas_acumuladas", [])
+        frec_esp_acum = resultado_prueba.get("frec_esperadas_acumuladas", [])
+        valores_chi = resultado_prueba.get("valores_chi_individuales", [])
+        chi_calculado = resultado_prueba.get("chi_calculado", 0)
+        chi_tabla = resultado_prueba.get("chi_tabla", 0)
+        alpha = resultado_prueba.get("alpha", 0)
         distribucion = resultado_prueba.get("distribucion", "desconocida")
 
         # Crear el texto de la tabla
         resultado = "=== Prueba de Bondad Chi² ===\n\n"
         resultado += f"Distribución hipotética: {distribucion}\n"
-        resultado += f"Estadístico Chi² Calculado: {chiStat:.4f}\n"
-        if chiTabla is not None:
-            resultado += f"Estadistico Chi² de Tabla: {chiTabla:.4f}\n"
-        resultado += f"Valor p (p-value): {pValue:.4f}\n"
+        resultado += f"Estadístico Chi² Calculado: {chi_calculado:.4f}\n"
+        if chi_tabla is not None:
+            resultado += f"Estadístico Chi² de Tabla: {chi_tabla:.4f}\n"
         resultado += f"Nivel de significancia (α): {alpha:.4f}\n\n"
 
         resultado += "Resultado de la Prueba:\n"
-        if pValue > alpha:
-            resultado += f"✅ No hay suficiente evidencia para rechazar H₀ (los datos siguen una {distribucion})\n\n"
-        else:
-            resultado += f"❌ Se rechaza H₀ (los datos NO siguen una {distribucion})\n\n"
-
-        if chiTabla is not None:
-            if chiStat <= chiTabla:
-                resultado += f"📊 Como {chiStat:.4f} <= {chiTabla:.4f}, No hay suficiente evidencia para rechazar H₀ según el valor crítico.\n\n"
+        if chi_tabla is not None:
+            if chi_calculado <= chi_tabla:
+                resultado += f"📊 Como {chi_calculado:.4f} <= {chi_tabla:.4f}, NO hay suficiente evidencia para rechazar la H₀: 'Los numeros generados siguen una distribucion: {distribucion}'. \n\n"
             else:
-                resultado += f"📊 Como {chiStat:.4f} > {chiTabla:.4f}, se rechaza H₀ según el valor crítico.\n\n"
+                resultado += f"📊 Como {chi_calculado:.4f} > {chi_tabla:.4f}, se RECHAZA la H₀: 'Los numeros generados siguen una distribucion: {distribucion}'.\n\n"
 
-        resultado += "Intervalo | Frecuencia Observada | Frecuencia Esperada\n"
-        resultado += "-" * 55 + "\n"
+        # Encabezados
+        resultado += (
+            f"{'Intervalo':>9} | {'Frec Obs':>8} | {'Frec Esp':>8} | "
+            f"{'Int Acum':>9} | {'Obs Acum':>9} | {'Esp Acum':>9} | {'Chi² Ind':>9}\n"
+        )
+        resultado += "-" * 88 + "\n"
+
+        intervalo_acum = 1
         for i in range(len(frec_obs)):
-            resultado += f"{i+1:9} | {frec_obs[i]:21} | {frec_esp[i]:20.2f}\n"
+            # Etiqueta intervalo acumulado sólo si está dentro del rango de acumulados
+            if i < len(frec_obs_acum):
+
+                etiqueta_intervalo_acum = f"{intervalo_acum}"
+                obs_acum = frec_obs_acum[i]
+                esp_acum = frec_esp_acum[i]
+                chi_ind = valores_chi[i]
+            else:
+                etiqueta_intervalo_acum = 0
+                obs_acum = 0
+                esp_acum = 0
+                chi_ind = 0
+
+            resultado += (
+                f"{i + 1:9} | {frec_obs[i]:8} | {frec_esp[i]:8.4f} | "
+                f"{etiqueta_intervalo_acum:>9} | {obs_acum:>9} | {esp_acum:>9.4f} | {chi_ind:>9.4f}\n"
+            )
+            intervalo_acum += 1
 
         # Insertar texto y habilitar scroll
         resultado_text.config(state=tk.NORMAL)
@@ -531,7 +550,9 @@ class InterfazGenerador(tk.Tk):
         if pValue > alpha:
             resultado += f"✅ No hay suficiente evidencia para rechazar H₀ (los datos siguen una {distribucion})\n\n"
         else:
-            resultado += f"❌ Se rechaza H₀ (los datos NO siguen una {distribucion})\n\n"
+            resultado += (
+                f"❌ Se rechaza H₀ (los datos NO siguen una {distribucion})\n\n"
+            )
 
         if ksTabla is not None:
             if ksStat <= ksTabla:
