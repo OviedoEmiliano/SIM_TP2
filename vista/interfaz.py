@@ -392,42 +392,6 @@ class InterfazGenerador(tk.Tk):
         canvas_widget.pack(fill=tk.BOTH, expand=True)
         canvas.draw()
 
-    # Funcion para mostrar la Tabla de frecuencias en el cuadro de texto
-    def crear_ventana_tabla_frecuencias(self, tabla):
-        global ventana_tabla_frecuencias_activa  # Usa la variable global
-
-        if ventana_tabla_frecuencias_activa:
-            ventana_tabla_frecuencias_activa.destroy()  # Cierra la ventana anterior
-
-        nueva_ventana = tk.Toplevel(self)
-        nueva_ventana.title("Tabla de Frecuencias")
-
-        # Crear un widget Text para mostrar la tabla
-        resultado_text = tk.Text(nueva_ventana, wrap=tk.WORD)
-        resultado_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
-        # Añadir una barra de desplazamiento vertical si es necesario
-        scrollbar = tk.Scrollbar(nueva_ventana, command=resultado_text.yview)
-        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        resultado_text.config(yscrollcommand=scrollbar.set)
-
-        # Insertar la tabla de frecuencias en el Text widget
-        resultado_text.insert(tk.END, "\nTabla de Frecuencias:\n")
-        resultado_text.insert(
-            tk.END,
-            f"{'Intervalo':<25} {'Frec. Abs.':<10} {'Frec. Rel.':<10} {'Frec. Acum.':<10}\n",
-        )
-        resultado_text.insert(tk.END, "-" * 65 + "\n")  # Ajusta el ancho de la línea
-        for intervalo, frecuencia_absoluta, frecuencia_relativa, acumulado in tabla:
-            resultado_text.insert(
-                tk.END,
-                f"{intervalo:<25} {frecuencia_absoluta:<10} {frecuencia_relativa:<10.4f} {acumulado:<10}\n",
-            )  # Formatea la frecuencia relativa
-
-        # Deshabilitar la edición del Text widget
-        resultado_text.config(state=tk.DISABLED)
-        ventana_tabla_frecuencias_activa = nueva_ventana
-
     # Funcion para mostrar el resultado de la prueba de bondad de CHI CUADRADO.
     def crear_ventana_prueba_bondad_chi2(self, resultado_prueba):
         global ventana_prueba_bondad_activa
@@ -451,8 +415,8 @@ class InterfazGenerador(tk.Tk):
         # Extraer datos del diccionario
         frec_obs = resultado_prueba.get("frec_observadas", [])
         frec_esp = resultado_prueba.get("frec_esperadas", [])
-        frec_obs_acum = resultado_prueba.get("frec_observadas_acumuladas", [])
-        frec_esp_acum = resultado_prueba.get("frec_esperadas_acumuladas", [])
+        frec_obs_agrup = resultado_prueba.get("frec_observadas_agrupadas", [])
+        frec_esp_agrup = resultado_prueba.get("frec_esperadas_agrupadas", [])
         valores_chi = resultado_prueba.get("valores_chi_individuales", [])
         chi_calculado = resultado_prueba.get("chi_calculado", 0)
         chi_tabla = resultado_prueba.get("chi_tabla", 0)
@@ -477,30 +441,34 @@ class InterfazGenerador(tk.Tk):
         # Encabezados
         resultado += (
             f"{'Intervalo':>9} | {'Frec Obs':>8} | {'Frec Esp':>8} | "
-            f"{'Int Acum':>9} | {'Obs Acum':>9} | {'Esp Acum':>9} | {'Chi² Ind':>9}\n"
+            f"{'Int Agrup':>9} | {'Obs Agrup':>9} | {'Esp Agrup':>9} | {'Chi² Ind':>9}\n"
         )
         resultado += "-" * 88 + "\n"
 
-        intervalo_acum = 1
+        intervalo_agrup = 1
         for i in range(len(frec_obs)):
             # Etiqueta intervalo acumulado sólo si está dentro del rango de acumulados
-            if i < len(frec_obs_acum):
+            if i < len(frec_obs_agrup):
 
-                etiqueta_intervalo_acum = f"{intervalo_acum}"
-                obs_acum = frec_obs_acum[i]
-                esp_acum = frec_esp_acum[i]
+                etiqueta_intervalo_acum = f"{intervalo_agrup}"
+                obs_agrup = frec_obs_agrup[i]
+                esp_agrup = frec_esp_agrup[i]
                 chi_ind = valores_chi[i]
             else:
-                etiqueta_intervalo_acum = 0
-                obs_acum = 0
-                esp_acum = 0
+                etiqueta_intervalo_agrup = 0
+                obs_agrup = 0
+                esp_agrup = 0
                 chi_ind = 0
 
             resultado += (
                 f"{i + 1:9} | {frec_obs[i]:8} | {frec_esp[i]:8.4f} | "
-                f"{etiqueta_intervalo_acum:>9} | {obs_acum:>9} | {esp_acum:>9.4f} | {chi_ind:>9.4f}\n"
+                f"{etiqueta_intervalo_acum:>9} | {obs_agrup:>9} | {esp_agrup:>9.4f} | {chi_ind:>9.4f}\n"
             )
-            intervalo_acum += 1
+            intervalo_agrup += 1
+        resultado += (
+            f"{'':9}  {'':8}  {'':8}  "
+            f"{'':9}  {'':9}  {'Total':>14} | {chi_calculado:>9.4f}\n"
+        )
 
         # Insertar texto y habilitar scroll
         resultado_text.config(state=tk.NORMAL)
@@ -518,7 +486,7 @@ class InterfazGenerador(tk.Tk):
             ventana_prueba_bondad_activa.destroy()
 
         nueva_ventana = tk.Toplevel(self)
-        nueva_ventana.title("Prueba de Bondad Kolmogorov-Smirnov")
+        nueva_ventana.title("Prueba de Bondad KS")
 
         resultado_text = tk.Text(nueva_ventana, wrap=tk.WORD)
         resultado_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
@@ -531,39 +499,53 @@ class InterfazGenerador(tk.Tk):
         resultado_text.config(state=tk.DISABLED)
 
         # Extraer datos del diccionario
-        ksStat = resultado_prueba.get("ksStat", 0)
-        ksTabla = resultado_prueba.get("ksTabla", 0)
-        pValue = resultado_prueba.get("pValue", 0)
-        alpha = resultado_prueba.get("alpha", 0.05)
+        frec_obs = resultado_prueba.get("frecObservadas", [])
+        frec_esp = resultado_prueba.get("frecEsperadas", [])
+        prob_frec_obs = resultado_prueba.get("probFrecObs", [])
+        prob_frec_obs_acum = resultado_prueba.get("probFrecObsAcum", [])
+        prob_frec_esp = resultado_prueba.get("probFrecEsp", [])
+        prob_frec_esp_acum = resultado_prueba.get("probFrecEspAcum", [])
+        dif_acum = resultado_prueba.get("diferenciasAcum", [])
+        ks_calculado = resultado_prueba.get("ksCalculado", 0)
+        ks_tabla = resultado_prueba.get("ksTabla", 0)
+        alpha = resultado_prueba.get("alpha", 0)
         distribucion = resultado_prueba.get("distribucion", "desconocida")
 
-        # Crear el texto de la tabla
-        resultado = "=== Prueba de Bondad Kolmogorov-Smirnov ===\n\n"
+        # Crear texto principal
+        resultado = "=== Prueba de Bondad Kolmogorov-Smirnov (KS) ===\n\n"
         resultado += f"Distribución hipotética: {distribucion}\n"
-        resultado += f"Estadístico KS Calculado: {ksStat:.4f}\n"
-        if ksTabla is not None:
-            resultado += f"Estadistico KS de Tabla: {ksTabla:.4f}\n"
-        resultado += f"Valor p (p-value): {pValue:.4f}\n"
+        resultado += f"Estadístico KS Calculado: {ks_calculado:.4f}\n"
+        resultado += f"Estadístico KS de Tabla: {ks_tabla:.4f}\n"
         resultado += f"Nivel de significancia (α): {alpha:.4f}\n\n"
 
         resultado += "Resultado de la Prueba:\n"
-        if pValue > alpha:
-            resultado += f"✅ No hay suficiente evidencia para rechazar H₀ (los datos siguen una {distribucion})\n\n"
+        if ks_calculado <= ks_tabla:
+            resultado += f"📊 Como {ks_calculado:.4f} <= {ks_tabla:.4f}, NO hay suficiente evidencia para rechazar la H₀: 'Los números generados siguen una distribución: {distribucion}'.\n\n"
         else:
+            resultado += f"📊 Como {ks_calculado:.4f} > {ks_tabla:.4f}, se RECHAZA la H₀: 'Los números generados siguen una distribución: {distribucion}'.\n\n"
+
+        # Encabezados
+        resultado += (
+            f"{'Intervalo':>9} | {'Frec Obs':>8} | {'Frec Esp':>8} | "
+            f"{'P(Obs)':>8} | {'P(Esp)':>8} | {'P(Obs) Ac':>10} | {'P(Esp) Ac':>10} | {'|Dif|':>7}\n"
+        )
+        resultado += "-" * 90 + "\n"
+
+        for i in range(len(frec_obs)):
             resultado += (
-                f"❌ Se rechaza H₀ (los datos NO siguen una {distribucion})\n\n"
+                f"{i + 1:9} | {frec_obs[i]:8} | {frec_esp[i]:8.4f} | "
+                f"{prob_frec_obs[i]:8.4f} | {prob_frec_esp[i]:8.4f} | "
+                f"{prob_frec_obs_acum[i]:10.4f} | {prob_frec_esp_acum[i]:10.4f} | {dif_acum[i]:7.4f}\n"
             )
 
-        if ksTabla is not None:
-            if ksStat <= ksTabla:
-                resultado += f"📊 Como {ksStat:.4f} <= {ksTabla:.4f}, No hay suficiente evidencia para rechazar H₀ según el valor crítico.\n\n"
-            else:
-                resultado += f"📊 Como {ksStat:.4f} > {ksTabla:.4f}, se rechaza H₀ según el valor crítico.\n\n"
+        resultado += (
+            f"{'':>70} {'Max KS':>8} | {ks_calculado:>7.4f}\n"
+        )
 
         # Insertar texto y habilitar scroll
         resultado_text.config(state=tk.NORMAL)
         resultado_text.insert(tk.END, resultado)
         resultado_text.config(state=tk.DISABLED)
 
-        # Guardar la ventana para poder cerrarla después
+        # Guardar referencia
         ventana_prueba_bondad_activa = nueva_ventana

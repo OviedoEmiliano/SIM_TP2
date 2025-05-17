@@ -52,19 +52,16 @@ class ControladorGenerador:
         self.vista.pagina_actual = 0
         self.vista.mostrar_pagina_resultados()
 
-        # Mostrar histograma y tabla de frecuencias
+        # Mostrar Graficos
         num_intervalos = self.vista.obtener_num_intervalos()
         self.vista.crear_ventana_histograma(
             numeros_aleatorios, distribucion, num_intervalos
         )
 
-        tabla = self.calcular_tabla_frecuencias(numeros_aleatorios, num_intervalos)
-        self.vista.crear_ventana_tabla_frecuencias(tabla)
-
         prueba_bondad_seleccionada = self.vista.obtener_prueba_bondad_seleccionada()
         alpha = self.vista.obtener_alpha()
 
-        if(prueba_bondad_seleccionada == "chi2"):
+        if prueba_bondad_seleccionada == "chi2":
             prueba_bondad = self.calcular_prueba_bondad_chi2(
                 numeros_aleatorios,
                 distribucion,
@@ -73,64 +70,72 @@ class ControladorGenerador:
                 num_intervalos,
             )
             self.vista.crear_ventana_prueba_bondad_chi2(prueba_bondad)
-        elif(prueba_bondad_seleccionada == "ks"):
+        elif prueba_bondad_seleccionada == "ks":
             prueba_bondad = self.calcular_prueba_bondad_ks(
                 numeros_aleatorios,
                 distribucion,
                 parametros,
                 alpha,
+                num_intervalos
             )
             self.vista.crear_ventana_prueba_bondad_ks(prueba_bondad)
-
-    def calcular_tabla_frecuencias(self, numeros, num_intervalos):
-        """
-        Calcula la tabla de frecuencias (intervalos, frecuencia absoluta,
-        frecuencia relativa y frecuencia acumulada) a partir de los datos generados.
-        """
-        conteo, limites = np.histogram(numeros, bins=num_intervalos)
-        tabla = []
-        total_datos = len(numeros)
-        acumulado = 0
-
-        for i in range(len(conteo)):
-            intervalo = f"[{limites[i]:.4f}, {limites[i+1]:.4f})"
-            frecuencia_absoluta = conteo[i]
-            frecuencia_relativa = conteo[i] / total_datos if total_datos > 0 else 0
-            acumulado += frecuencia_absoluta
-            tabla.append(
-                (intervalo, frecuencia_absoluta, frecuencia_relativa, acumulado)
-            )
-        return tabla
 
     def calcular_prueba_bondad_chi2(
         self, nros_generados, distribucion, parametros, alpha, cant_intervalos
     ):
-        frec_observadas, frec_esperadas, frec_observadas_acumuladas, frec_esperadas_acumuladas, valores_chi_individuales, chi_calculado, chi2_tabla = calcular_prueba_bondad_chi2(
+        (
+            frec_observadas,
+            frec_esperadas,
+            frec_observadas_agrupadas,
+            frec_esperadas_agrupadas,
+            valores_chi_individuales,
+            chi_calculado,
+            chi2_tabla,
+        ) = calcular_prueba_bondad_chi2(
             nros_generados, distribucion, parametros, alpha, cant_intervalos
         )
         resultado_prueba = {
             "frec_observadas": frec_observadas,
             "frec_esperadas": frec_esperadas,
             "chi_calculado": chi_calculado,
-            "frec_observadas_acumuladas": frec_observadas_acumuladas,
-            "frec_esperadas_acumuladas":frec_esperadas_acumuladas,
+            "frec_observadas_agrupadas": frec_observadas_agrupadas,
+            "frec_esperadas_agrupadas": frec_esperadas_agrupadas,
             "valores_chi_individuales": valores_chi_individuales,
             "chi_tabla": chi2_tabla,
             "distribucion": distribucion,
-            "alpha": alpha
+            "alpha": alpha,
         }
         return resultado_prueba
 
-    def calcular_prueba_bondad_ks(self,nros_generados, distribucion, parametros, alpha  ):
-        ks_stat, p_value, ks_tabla = calcular_prueba_bondad_ks(nros_generados, distribucion, parametros, alpha)
+    def calcular_prueba_bondad_ks(
+        self, nros_generados, distribucion, parametros, alpha, intervalos
+    ):
+        (
+            frecObservadas,
+            frecEsperadas,
+            prob_frec_obs,
+            prob_frec_obs_acum,
+            prob_frec_esp,
+            prob_frec_esp_acum,
+            dif_probs_acum,
+            ks_calculado,
+            ks_tabla,
+        ) = calcular_prueba_bondad_ks(nros_generados, distribucion, parametros, alpha, intervalos)
         resultado_prueba = {
-            "ksStat": ks_stat,
+            "frecObservadas": frecObservadas,
+            "frecEsperadas": frecEsperadas,
+            "probFrecObs": prob_frec_obs,
+            "probFrecObsAcum": prob_frec_obs_acum,
+            "probFrecEsp": prob_frec_esp,
+            "probFrecEspAcum": prob_frec_esp_acum,
+            "diferenciasAcum": dif_probs_acum,
+            "ksCalculado": ks_calculado,
             "ksTabla": ks_tabla,
-            "pValue": p_value,
             "distribucion": distribucion,
-            "alpha": alpha
+            "alpha": alpha,
         }
-        return resultado_prueba;
+        return resultado_prueba
+
 
 def configurar_app():
     # Configura la aplicación creando la vista y el controlador, y vinculándolos entre sí.
