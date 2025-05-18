@@ -275,11 +275,14 @@ class InterfazGenerador(tk.Tk):
         params = {}
         if self.distribucion_var.get() == "Exponencial":
             try:
-                params["lambda"] = (
+                valor_lambda = (
                     float(self.parametro1_entry.get())
                     if self.parametro1_entry.get()
                     else 1.0
                 )
+                if valor_lambda <= 0:
+                    return None, "Lambda debe ser mayor que 0."
+                params["lambda"] = valor_lambda
             except ValueError:
                 return None, "Por favor, ingresa un número válido para lambda."
         elif self.distribucion_var.get() == "Normal":
@@ -440,34 +443,33 @@ class InterfazGenerador(tk.Tk):
 
         # Encabezados
         resultado += (
-            f"{'Intervalo':>9} | {'Frec Obs':>8} | {'Frec Esp':>8} | "
-            f"{'Int Agrup':>9} | {'Obs Agrup':>9} | {'Esp Agrup':>9} | {'Chi² Ind':>9}\n"
+            f"{'Intervalo':>9} | {'Frec Obs':>8} | {'Frec Esp':>8} | {'(Fo - Fe)^2':>9} | "
+            f"{'Chi² Ind: (Fo - Fe)^2 / Fe':>9}\n"
         )
-        resultado += "-" * 88 + "\n"
+        resultado += "-" * 76 + "\n"
 
         intervalo_agrup = 1
         for i in range(len(frec_obs)):
             # Etiqueta intervalo acumulado sólo si está dentro del rango de acumulados
-            if i < len(frec_obs_agrup):
-
-                etiqueta_intervalo_acum = f"{intervalo_agrup}"
-                obs_agrup = frec_obs_agrup[i]
-                esp_agrup = frec_esp_agrup[i]
-                chi_ind = valores_chi[i]
-            else:
-                etiqueta_intervalo_agrup = 0
-                obs_agrup = 0
-                esp_agrup = 0
-                chi_ind = 0
-
             resultado += (
-                f"{i + 1:9} | {frec_obs[i]:8} | {frec_esp[i]:8.4f} | "
-                f"{etiqueta_intervalo_acum:>9} | {obs_agrup:>9} | {esp_agrup:>9.4f} | {chi_ind:>9.4f}\n"
+                f"{i + 1:9} | {frec_obs[i]:8} | {frec_esp[i]:8.4f} | {((frec_obs[i] - frec_esp[i]) ** 2):11.4f} | "
+                f"{((frec_obs[i] - frec_esp[i]) ** 2)/frec_esp[i]:>26.4f}\n"
             )
             intervalo_agrup += 1
+
+        #Tabla con resultados agrupados
+        resultado += "\nTabla con intervalos agrupados (Frec. Esperada < 5):\n"
+        resultado += f"{'Intervalo':>9} | {'Frec Obs':>8} | {'Frec Esp':>9} | {'(Fo - Fe)^2':>9} | {'Chi² Ind':>9}\n"
+        resultado += "-" * 60 + "\n"
+
+        for i in range(len(frec_obs_agrup)):
+            resultado += (
+                f"{i+1:9} | {frec_obs_agrup[i]:8} | {frec_esp_agrup[i]:9.4f} | {(frec_obs_agrup[i] - frec_esp_agrup[i]) ** 2:11.4f} | {valores_chi[i]:9.4f}\n"
+            )
+
         resultado += (
-            f"{'':9}  {'':8}  {'':8}  "
-            f"{'':9}  {'':9}  {'Total':>14} | {chi_calculado:>9.4f}\n"
+            f"{'':9}  {'':10} {'':9} {'Total':>14} : "
+            f"{sum(valores_chi):>9.4f}\n"
         )
 
         # Insertar texto y habilitar scroll

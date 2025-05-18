@@ -16,8 +16,9 @@ class GeneradorDistribucionesModelo:
         """
 
         if distribucion == "Exponencial":
-            # Distribución Exponencial: X = -1/λ * ln(1 - U)
             lambda_param = parametros.get("lambda", 1.0)
+            if lambda_param <= 0:
+                raise ValueError("El parámetro lambda debe ser positivo.")
             return [round(-1 / lambda_param * math.log(1 - random.random()), 4) for _ in range(cantidad)]
 
         elif distribucion == "Normal":
