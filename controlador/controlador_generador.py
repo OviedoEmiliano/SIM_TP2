@@ -8,12 +8,10 @@ from modelo.pruebas_bondad import calcular_prueba_bondad_ks
 
 class ControladorGenerador:
     def __init__(self, vista):
-        # Inicializa el controlador con la vista y el modelo.
         self.vista = vista
         self.modelo = GeneradorDistribucionesModelo()
 
     def validar_cantidad(self, cantidad_str):
-        # Valida que la cantidad ingresada sea un número entero entre 1 y 1,000,000.
         try:
             cantidad = int(cantidad_str)
             if not (1 <= cantidad <= 1_000_000):
@@ -23,10 +21,6 @@ class ControladorGenerador:
             return None, "Por favor, ingresa un número entero válido para la cantidad."
 
     def generar_y_mostrar_graficos(self):
-        """
-        Obtiene y valida entradas desde la vista, genera los números aleatorios,
-        muestra resultados, histograma y tabla de frecuencias.
-        """
         cantidad_str = self.vista.obtener_cantidad()
         cantidad, error = self.validar_cantidad(cantidad_str)
         if error:
@@ -47,12 +41,10 @@ class ControladorGenerador:
             messagebox.showerror("Error al generar números", str(e))
             return
 
-        # Mostrar los resultados y preparar navegación por páginas
         self.vista.numeros_generados = numeros_aleatorios
         self.vista.pagina_actual = 0
         self.vista.mostrar_pagina_resultados()
 
-        # Mostrar Graficos
         num_intervalos = self.vista.obtener_num_intervalos()
         self.vista.crear_ventana_histograma(
             numeros_aleatorios, distribucion, num_intervalos
@@ -88,7 +80,8 @@ class ControladorGenerador:
             frec_esperadas,
             frec_observadas_agrupadas,
             frec_esperadas_agrupadas,
-            valores_chi_individuales,
+            valores_chi_individuales_original, # Updated to receive original values
+            valores_chi_individuales_agrupados, # Updated to receive grouped values
             chi_calculado,
             chi2_tabla,
         ) = calcular_prueba_bondad_chi2(
@@ -97,10 +90,11 @@ class ControladorGenerador:
         resultado_prueba = {
             "frec_observadas": frec_observadas,
             "frec_esperadas": frec_esperadas,
+            "valores_chi_individuales_original": valores_chi_individuales_original, # Added to result_prueba
             "chi_calculado": chi_calculado,
             "frec_observadas_agrupadas": frec_observadas_agrupadas,
             "frec_esperadas_agrupadas": frec_esperadas_agrupadas,
-            "valores_chi_individuales": valores_chi_individuales,
+            "valores_chi_individuales": valores_chi_individuales_agrupados, # This now correctly holds grouped values
             "chi_tabla": chi2_tabla,
             "distribucion": distribucion,
             "alpha": alpha,
@@ -120,7 +114,15 @@ class ControladorGenerador:
             dif_probs_acum,
             ks_calculado,
             ks_tabla,
+            frec_obs_agrup,
+            frec_esp_agrup,
+            prob_obs_agrup,
+            prob_esp_agrup,
+            prob_obs_acum_agrup,
+            prob_esp_acum_agrup,
+            dif_acum_agrup,
         ) = calcular_prueba_bondad_ks(nros_generados, distribucion, parametros, alpha, intervalos)
+
         resultado_prueba = {
             "frecObservadas": frecObservadas,
             "frecEsperadas": frecEsperadas,
@@ -133,12 +135,18 @@ class ControladorGenerador:
             "ksTabla": ks_tabla,
             "distribucion": distribucion,
             "alpha": alpha,
+            "frecObsAgrupadas": frec_obs_agrup,
+            "frecEspAgrupadas": frec_esp_agrup,
+            "probObsAgrupadas": prob_obs_agrup,
+            "probEspAgrupadas": prob_esp_agrup,
+            "probObsAcumAgrupadas": prob_obs_acum_agrup,
+            "probEspAcumAgrupadas": prob_esp_acum_agrup,
+            "diferenciasAcumAgrupadas": dif_acum_agrup,
         }
         return resultado_prueba
 
 
 def configurar_app():
-    # Configura la aplicación creando la vista y el controlador, y vinculándolos entre sí.
     vista = InterfazGenerador(None)
     controlador = ControladorGenerador(vista)
     vista.controlador = controlador
@@ -146,7 +154,6 @@ def configurar_app():
 
 
 def main():
-    # Punto de entrada de la aplicación: inicia la interfaz gráfica.
     vista = configurar_app()
     vista.iniciar()
     vista.mainloop()

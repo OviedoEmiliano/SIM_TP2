@@ -26,16 +26,6 @@ class InterfazGenerador(tk.Tk):
         self._configurar_grid()
         self._mostrar_parametros(2)
 
-    """
-
-
-    
-        FUNCIONES PARA VER LA VENTANA PRINCIPAL
-
-    
-        
-    """
-
     # Seccion donde se carga la cantidad de numeros a generar.
     def _seccion_cantidad_numeros(self):
         self.cantidad_label = tk.Label(self, text="Cantidad de números a generar:")
@@ -133,16 +123,6 @@ class InterfazGenerador(tk.Tk):
         self._seccion_generar_mostrar_graficos()
         self._seccion_mostrar_nros_generados_paginados()
 
-    """
-    
-
-
-        FUNCIONES PARA ORGANIZAR LA VENTANA PRINCIPAL (GRID)
-
-
-
-    """
-
     def _grid_cantidad_numeros(self):
         self.cantidad_label.grid(row=0, column=0, padx=5, pady=5, sticky="w")
         self.cantidad_entry.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
@@ -190,7 +170,6 @@ class InterfazGenerador(tk.Tk):
         self.boton_anterior.grid(row=6, column=0, sticky="ew", padx=5, pady=5)
         self.boton_siguiente.grid(row=6, column=1, sticky="ew", padx=5, pady=5)
 
-    # Funcion para configurar el grid de la ventana principal y ordenar los elementos.
     def _configurar_grid(self):
         self._grid_cantidad_numeros()
         self._grid_seleccion_distribucion()
@@ -202,17 +181,6 @@ class InterfazGenerador(tk.Tk):
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(5, weight=1)
 
-    """
-
-    
-
-    FUNCIONES QUE SON UTILIZADAS DENTRO DE LAS SECCIONES
-
-    
-
-    """
-
-    # Funcion para mostrar los campos de los parametros de la distribucion seleccionada
     def _mostrar_parametros(self, num_params):
         distribucion = self.distribucion_var.get()
         if num_params == 1:
@@ -237,40 +205,23 @@ class InterfazGenerador(tk.Tk):
             self.parametro2_label.grid(row=1, column=0, padx=5, pady=2, sticky="w")
             self.parametro2_entry.grid(row=1, column=1, padx=5, pady=2, sticky="ew")
 
-        # Funcion para calcular la Anterior Pagina
-
-    # Funcion para calcular la Pagina Anterior
     def _anterior_pagina(self):
         if self.pagina_actual > 0:
             self.pagina_actual -= 1
             self.mostrar_pagina_resultados()
 
-    # Funcion para calcular la Siguiente Pagina
     def _siguiente_pagina(self):
         total_paginas = math.ceil(len(self.numeros_generados) / self.tamano_pagina)
         if self.pagina_actual < total_paginas - 1:
             self.pagina_actual += 1
             self.mostrar_pagina_resultados()
 
-    """
-    
-
-
-    FUNCIONES UTILIZADAS PARA OBTENER LOS VALORES INGRESADOS EN CADA SECCION
-
-    
-
-    """
-
-    # Funcion para obtener la cantidad de numeros a generar
     def obtener_cantidad(self):
         return self.cantidad_entry.get()
 
-    # Funcion para obtener la distribucion seleccionada
     def obtener_distribucion(self):
         return self.distribucion_var.get()
 
-    # Funcion para obtener los parametros de la distribucion seleccionada, exponencial: labda, normal: mu y sigma, uniforme: a y b.
     def obtener_parametros(self):
         params = {}
         if self.distribucion_var.get() == "Exponencial":
@@ -315,35 +266,20 @@ class InterfazGenerador(tk.Tk):
                 return None, "Por favor, ingresa números válidos para a y b."
         return params, None
 
-    # Funcion para obtener el numero de intervalos seleccionados para el histograma
     def obtener_num_intervalos(self):
         return int(self.intervalos_var.get())
 
-    # Funcion para obtener el alpha ingresado
     def obtener_alpha(self):
         return float(self.alpha_entry.get()) if self.alpha_entry.get() else 0.05
 
-    # Funcion para obtener la prueba de bondad seleccionada
     def obtener_prueba_bondad_seleccionada(self):
         return self.prueba_var.get()
 
-    """
-    
-
-
-    FUNCIONES USADAS EN EL CONTROLADOR
-
-    
-
-    """
-
-    # Funcion para mostrar los numeros generados en el cuadro de texto
     def mostrar_resultado(self, texto):
         self.resultado_text.delete(1.0, tk.END)
         self.resultado_text.insert(tk.END, texto)
         self.resultado_text.see(tk.END)
 
-    # Funcion para mostrar la pagina con todos los numeros generados llamando a la funcion mostrar_resultados
     def mostrar_pagina_resultados(self):
         if not self.numeros_generados:
             return
@@ -362,7 +298,6 @@ class InterfazGenerador(tk.Tk):
 
         self.mostrar_resultado(texto)
 
-    # Funcion para mostrar el histograma en una ventana nueva
     def crear_ventana_histograma(self, numeros, distribucion, num_intervalos):
         global ventana_histograma_activa
 
@@ -395,7 +330,6 @@ class InterfazGenerador(tk.Tk):
         canvas_widget.pack(fill=tk.BOTH, expand=True)
         canvas.draw()
 
-    # Funcion para mostrar el resultado de la prueba de bondad de CHI CUADRADO.
     def crear_ventana_prueba_bondad_chi2(self, resultado_prueba):
         global ventana_prueba_bondad_activa
 
@@ -403,7 +337,7 @@ class InterfazGenerador(tk.Tk):
             ventana_prueba_bondad_activa.destroy()
 
         nueva_ventana = tk.Toplevel(self)
-        nueva_ventana.title("Prueba de Bondad")
+        nueva_ventana.title("Prueba de Bondad Chi Cuadrado")
 
         resultado_text = tk.Text(nueva_ventana, wrap=tk.WORD)
         resultado_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
@@ -412,15 +346,17 @@ class InterfazGenerador(tk.Tk):
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         resultado_text.config(yscrollcommand=scrollbar.set)
 
-        # Deshabilitar la edición del Text widget
-        resultado_text.config(state=tk.DISABLED)
-
         # Extraer datos del diccionario
-        frec_obs = resultado_prueba.get("frec_observadas", [])
-        frec_esp = resultado_prueba.get("frec_esperadas", [])
+        frec_obs_original = resultado_prueba.get("frec_observadas", [])
+        frec_esp_original = resultado_prueba.get("frec_esperadas", [])
+        # The individual chi-squared values for the ORIGINAL table need to be calculated here
+        # or passed from the controller, as they are not explicitly in the dictionary
+        # named 'valores_chi_individuales_original'.
+        # We will calculate them here for the original table.
+
         frec_obs_agrup = resultado_prueba.get("frec_observadas_agrupadas", [])
         frec_esp_agrup = resultado_prueba.get("frec_esperadas_agrupadas", [])
-        valores_chi = resultado_prueba.get("valores_chi_individuales", [])
+        valores_chi_agrup = resultado_prueba.get("valores_chi_individuales", [])
         chi_calculado = resultado_prueba.get("chi_calculado", 0)
         chi_tabla = resultado_prueba.get("chi_tabla", 0)
         alpha = resultado_prueba.get("alpha", 0)
@@ -441,46 +377,57 @@ class InterfazGenerador(tk.Tk):
             else:
                 resultado += f"📊 Como {chi_calculado:.4f} > {chi_tabla:.4f}, se RECHAZA la H₀: 'Los numeros generados siguen una distribucion: {distribucion}'.\n\n"
 
-        # Encabezados
+        # Tabla Original (sin agrupar) - REMOVED TOTAL
+        resultado += "Tabla de Frecuencias (Original):\n"
         resultado += (
             f"{'Intervalo':>9} | {'Frec Obs':>8} | {'Frec Esp':>8} | {'(Fo - Fe)^2':>9} | "
-            f"{'Chi² Ind: (Fo - Fe)^2 / Fe':>9}\n"
+            f"{'Chi^2 Ind':>9}\n"
         )
-        resultado += "-" * 76 + "\n"
+        resultado += "-" * 57 + "\n"
 
-        intervalo_agrup = 1
-        for i in range(len(frec_obs)):
-            # Etiqueta intervalo acumulado sólo si está dentro del rango de acumulados
+        for i in range(len(frec_obs_original)):
+            fo_fe_squared = (frec_obs_original[i] - frec_esp_original[i])**2
+            # Calculate chi_ind for the original table directly here
+            # Ensure frec_esp_original[i] is not zero to avoid division by zero
+            chi_ind = fo_fe_squared / frec_esp_original[i] if frec_esp_original[i] != 0 else 0
             resultado += (
-                f"{i + 1:9} | {frec_obs[i]:8} | {frec_esp[i]:8.4f} | {((frec_obs[i] - frec_esp[i]) ** 2):11.4f} | "
-                f"{((frec_obs[i] - frec_esp[i]) ** 2)/frec_esp[i]:>26.4f}\n"
+                f"{i + 1:>9} | {frec_obs_original[i]:>8.4f} | {frec_esp_original[i]:>8.4f} | "
+                f"{fo_fe_squared:>9.4f} | "
+                f"{chi_ind:>9.4f}\n"
             )
-            intervalo_agrup += 1
+        resultado += "\n"
 
-        #Tabla con resultados agrupados
-        resultado += "\nTabla con intervalos agrupados (Frec. Esperada < 5):\n"
-        resultado += f"{'Intervalo':>9} | {'Frec Obs':>8} | {'Frec Esp':>9} | {'(Fo - Fe)^2':>9} | {'Chi² Ind':>9}\n"
-        resultado += "-" * 60 + "\n"
 
-        for i in range(len(frec_obs_agrup)):
-            resultado += (
-                f"{i+1:9} | {frec_obs_agrup[i]:8} | {frec_esp_agrup[i]:9.4f} | {(frec_obs_agrup[i] - frec_esp_agrup[i]) ** 2:11.4f} | {valores_chi[i]:9.4f}\n"
-            )
-
+        # Tabla con intervalos agrupados - KEPT TOTAL
+        resultado += "Tabla con intervalos agrupados (Frec. Esperada < 5):\n"
         resultado += (
-            f"{'':9}  {'':10} {'':9} {'Total':>14} : "
-            f"{sum(valores_chi):>9.4f}\n"
+            f"{'Intervalo':>9} | {'Frec Obs':>8} | {'Frec Esp':>8} | {'(Fo - Fe)^2':>9} | "
+            f"{'Chi^2 Ind':>9}\n"
         )
+        resultado += "-" * 57 + "\n"
 
-        # Insertar texto y habilitar scroll
+        sum_chi_agrupado = 0
+        for i in range(len(frec_obs_agrup)):
+            fo_fe_squared_agrup = ((frec_obs_agrup[i] - frec_esp_agrup[i])**2)
+            chi_ind_agrup = valores_chi_agrup[i]
+            sum_chi_agrupado += chi_ind_agrup
+            resultado += (
+                f"{i + 1:>9} | {frec_obs_agrup[i]:>8.4f} | {frec_esp_agrup[i]:>8.4f} | "
+                f"{fo_fe_squared_agrup:>9.4f} | "
+                f"{chi_ind_agrup:>9.4f}\n"
+            )
+        resultado += "-" * 57 + "\n"
+        resultado += f"{'Total':>9} | {'':>8} | {'':>8} | {'':>9} | {sum_chi_agrupado:>9.4f}\n"
+
+
+        # Habilitar para insertar, luego deshabilitar de nuevo
         resultado_text.config(state=tk.NORMAL)
+        resultado_text.delete(1.0, tk.END)
         resultado_text.insert(tk.END, resultado)
         resultado_text.config(state=tk.DISABLED)
 
-        # Guardar la ventana para poder cerrarla después
         ventana_prueba_bondad_activa = nueva_ventana
 
-    # Funcion para mostrar el resultado de la prueba de bondad de Kolmogorov-Smirnov
     def crear_ventana_prueba_bondad_ks(self, resultado_prueba):
         global ventana_prueba_bondad_activa
 
@@ -488,7 +435,8 @@ class InterfazGenerador(tk.Tk):
             ventana_prueba_bondad_activa.destroy()
 
         nueva_ventana = tk.Toplevel(self)
-        nueva_ventana.title("Prueba de Bondad KS")
+        nueva_ventana.title("Prueba de Bondad (Kolmogorov-Smirnov)")
+        ventana_prueba_bondad_activa = nueva_ventana
 
         resultado_text = tk.Text(nueva_ventana, wrap=tk.WORD)
         resultado_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
@@ -501,53 +449,86 @@ class InterfazGenerador(tk.Tk):
         resultado_text.config(state=tk.DISABLED)
 
         # Extraer datos del diccionario
-        frec_obs = resultado_prueba.get("frecObservadas", [])
-        frec_esp = resultado_prueba.get("frecEsperadas", [])
-        prob_frec_obs = resultado_prueba.get("probFrecObs", [])
-        prob_frec_obs_acum = resultado_prueba.get("probFrecObsAcum", [])
-        prob_frec_esp = resultado_prueba.get("probFrecEsp", [])
-        prob_frec_esp_acum = resultado_prueba.get("probFrecEspAcum", [])
-        dif_acum = resultado_prueba.get("diferenciasAcum", [])
+        frec_obs_original = resultado_prueba.get("frecObservadas", [])
+        frec_esp_original = resultado_prueba.get("frecEsperadas", [])
+        prob_obs_original = resultado_prueba.get("probFrecObs", [])
+        prob_esp_original = resultado_prueba.get("probFrecEsp", [])
+        prob_obs_acum_original = resultado_prueba.get("probFrecObsAcum", [])
+        prob_esp_acum_original = resultado_prueba.get("probFrecEspAcum", [])
+        diferencias_acum_original = resultado_prueba.get("diferenciasAcum", [])
+
+        frec_obs_agrupadas = resultado_prueba.get("frecObsAgrupadas", [])
+        frec_esp_agrupadas = resultado_prueba.get("frecEspAgrupadas", [])
+        prob_obs_agrupadas = resultado_prueba.get("probObsAgrupadas", [])
+        prob_esp_agrupadas = resultado_prueba.get("probEspAgrupadas", [])
+        prob_obs_acum_agrupadas = resultado_prueba.get("probObsAcumAgrupadas", [])
+        prob_esp_acum_agrupadas = resultado_prueba.get("probEspAcumAgrupadas", [])
+        diferencias_acum_agrupadas = resultado_prueba.get("diferenciasAcumAgrupadas", [])
+        
         ks_calculado = resultado_prueba.get("ksCalculado", 0)
         ks_tabla = resultado_prueba.get("ksTabla", 0)
         alpha = resultado_prueba.get("alpha", 0)
         distribucion = resultado_prueba.get("distribucion", "desconocida")
 
-        # Crear texto principal
-        resultado = "=== Prueba de Bondad Kolmogorov-Smirnov (KS) ===\n\n"
+
+        # Crear el texto de la tabla
+        resultado = "=== Prueba de Bondad Kolmogorov-Smirnov ===\n\n"
         resultado += f"Distribución hipotética: {distribucion}\n"
         resultado += f"Estadístico KS Calculado: {ks_calculado:.4f}\n"
-        resultado += f"Estadístico KS de Tabla: {ks_tabla:.4f}\n"
+        if ks_tabla is not None:
+            resultado += f"Estadístico KS de Tabla: {ks_tabla:.4f}\n"
         resultado += f"Nivel de significancia (α): {alpha:.4f}\n\n"
 
         resultado += "Resultado de la Prueba:\n"
-        if ks_calculado <= ks_tabla:
-            resultado += f"📊 Como {ks_calculado:.4f} <= {ks_tabla:.4f}, NO hay suficiente evidencia para rechazar la H₀: 'Los números generados siguen una distribución: {distribucion}'.\n\n"
-        else:
-            resultado += f"📊 Como {ks_calculado:.4f} > {ks_tabla:.4f}, se RECHAZA la H₀: 'Los números generados siguen una distribución: {distribucion}'.\n\n"
+        if ks_tabla is not None:
+            if ks_calculado <= ks_tabla:
+                resultado += f"📊 Como {ks_calculado:.4f} <= {ks_tabla:.4f}, NO hay suficiente evidencia para rechazar la H₀: 'Los numeros generados siguen una distribucion: {distribucion}'. \n\n"
+            else:
+                resultado += f"📊 Como {ks_calculado:.4f} > {ks_tabla:.4f}, se RECHAZA la H₀: 'Los numeros generados siguen una distribucion: {distribucion}'.\n\n"
 
-        # Encabezados
+        # Tabla Original (sin agrupar) - REMOVED TOTAL
+        resultado += "Tabla de Frecuencias (Original):\n"
         resultado += (
-            f"{'Intervalo':>9} | {'Frec Obs':>8} | {'Frec Esp':>8} | "
-            f"{'P(Obs)':>8} | {'P(Esp)':>8} | {'P(Obs) Ac':>10} | {'P(Esp) Ac':>10} | {'|Dif|':>7}\n"
+            f"{'Intervalo':<9} | {'Frec Obs':<10} | {'Frec Esp':<10} | {'Prob Obs':<10} | "
+            f"{'Prob Esp':<10} | {'Prob Obs Acum':<15} | {'Prob Esp Acum':<15} | {'|Fo - Fe|':<10}\n"
         )
-        resultado += "-" * 90 + "\n"
+        resultado += "-" * 105 + "\n"
 
-        for i in range(len(frec_obs)):
+        for i in range(len(frec_obs_original)):
             resultado += (
-                f"{i + 1:9} | {frec_obs[i]:8} | {frec_esp[i]:8.4f} | "
-                f"{prob_frec_obs[i]:8.4f} | {prob_frec_esp[i]:8.4f} | "
-                f"{prob_frec_obs_acum[i]:10.4f} | {prob_frec_esp_acum[i]:10.4f} | {dif_acum[i]:7.4f}\n"
+                f"{i + 1:<9} | {frec_obs_original[i]:<10.4f} | {frec_esp_original[i]:<10.4f} | "
+                f"{prob_obs_original[i]:<10.4f} | {prob_esp_original[i]:<10.4f} | "
+                f"{prob_obs_acum_original[i]:<15.4f} | {prob_esp_acum_original[i]:<15.4f} | "
+                f"{diferencias_acum_original[i]:<10.4f}\n"
             )
 
-        resultado += (
-            f"{'':>70} {'Max KS':>8} | {ks_calculado:>7.4f}\n"
-        )
+        resultado += f"\nMax KS: {ks_calculado:.4f}\n\n"
 
-        # Insertar texto y habilitar scroll
+        # Tabla con intervalos agrupados - ADDED MAX OF LAST COLUMN
+        resultado += "Tabla con intervalos agrupados (Frec. Esperada < 5):\n"
+        resultado += (
+            f"{'Intervalo':<9} | {'Frec Obs':<10} | {'Frec Esp':<10} | {'Prob Obs':<10} | "
+            f"{'Prob Esp':<10} | {'Prob Obs Acum':<15} | {'Prob Esp Acum':<15} | {'|Fo - Fe|':<10}\n"
+        )
+        resultado += "-" * 105 + "\n"
+
+        max_dif_agrupadas = 0
+        if diferencias_acum_agrupadas: # Check if list is not empty
+            max_dif_agrupadas = max(diferencias_acum_agrupadas)
+
+        for i in range(len(frec_obs_agrupadas)):
+            resultado += (
+                f"{i + 1:<9} | {frec_obs_agrupadas[i]:<10.4f} | {frec_esp_agrupadas[i]:<10.4f} | "
+                f"{prob_obs_agrupadas[i]:<10.4f} | {prob_esp_agrupadas[i]:<10.4f} | "
+                f"{prob_obs_acum_agrupadas[i]:<15.4f} | {prob_esp_acum_agrupadas[i]:<15.4f} | "
+                f"{diferencias_acum_agrupadas[i]:<10.4f}\n"
+            )
+        resultado += "-" * 105 + "\n"
+        resultado += f"{'Max KS':<9} | {'':<10} | {'':<10} | {'':<10} | {'':<10} | {'':<15} | {'':<15} | {max_dif_agrupadas:<10.4f}\n"
+
+
+        # Habilitar para insertar, luego deshabilitar de nuevo
         resultado_text.config(state=tk.NORMAL)
+        resultado_text.delete(1.0, tk.END)
         resultado_text.insert(tk.END, resultado)
         resultado_text.config(state=tk.DISABLED)
-
-        # Guardar referencia
-        ventana_prueba_bondad_activa = nueva_ventana
